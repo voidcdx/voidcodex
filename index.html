@@ -264,14 +264,14 @@ function expMs(iso) { return new Date(iso).getTime() - Date.now(); }
 
 async function fetchWS() {
   const endpoints = [
-    ['cetusCycle',   'https://corsproxy.io/?https://api.warframestat.us/pc/cetusCycle'],
-    ['vallisCycle',  'https://corsproxy.io/?https://api.warframestat.us/pc/vallisCycle'],
-    ['cambionCycle', 'https://corsproxy.io/?https://api.warframestat.us/pc/cambionCycle'],
-    ['zarimanCycle', 'https://corsproxy.io/?https://api.warframestat.us/pc/zarimanCycle'],
-    ['fissures',     'https://corsproxy.io/?https://api.warframestat.us/pc/fissures'],
-    ['alerts',       'https://corsproxy.io/?https://api.warframestat.us/pc/alerts'],
-    ['sortie',       'https://corsproxy.io/?https://api.warframestat.us/pc/sortie'],
-    ['archonHunt',   'https://corsproxy.io/?https://api.warframestat.us/pc/archonHunt'],
+    ['cetusCycle',   'https://api.warframestat.us/pc/cetusCycle'],
+    ['vallisCycle',  'https://api.warframestat.us/pc/vallisCycle'],
+    ['cambionCycle', 'https://api.warframestat.us/pc/cambionCycle'],
+    ['zarimanCycle', 'https://api.warframestat.us/pc/zarimanCycle'],
+    ['fissures',     'https://api.warframestat.us/pc/fissures'],
+    ['alerts',       'https://api.warframestat.us/pc/alerts'],
+    ['sortie',       'https://api.warframestat.us/pc/sortie'],
+    ['archonHunt',   'https://api.warframestat.us/pc/archonHunt'],
   ];
   const results = await Promise.allSettled(
     endpoints.map(([, url]) => fetch(url).then(r => { if (!r.ok) throw new Error(); return r.json(); }))
