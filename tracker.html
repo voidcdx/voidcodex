@@ -1232,7 +1232,6 @@
     gap: 6px;
     flex-wrap: wrap;
     text-align: center;
-    flex-direction: column;
   }
 
   .footer-credits p {
@@ -1288,65 +1287,6 @@
     .tab-btn { font-size: 0.62rem; padding: 6px 13px; }
     .vaulted-toggle-wrap { margin-left: 0; }
   }
-
-  /* LEGAL MODALS */
-  .legal-close {
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--text-dim);
-    font-size: 1.2rem;
-    line-height: 1;
-    cursor: pointer;
-    padding: 4px 8px;
-    transition: color 0.2s, transform 0.2s;
-    flex-shrink: 0;
-    font-family: 'Share Tech Mono', monospace;
-  }
-  .legal-close:hover {
-    color: var(--gold-light);
-    transform: scale(1.15);
-  }
-  .legal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(5,4,10,0.88); z-index: 9000;
-    align-items: center; justify-content: center;
-    padding: 20px; backdrop-filter: blur(4px);
-  }
-  .legal-overlay.open { display: flex; }
-  .legal-modal {
-    background: var(--bg-mid); border: 1px solid rgba(201,168,76,0.2);
-    max-width: 580px; width: 100%; max-height: 80vh;
-    overflow-y: auto; position: relative;
-    box-shadow: 0 0 60px rgba(201,168,76,0.08), 0 0 120px rgba(0,0,0,0.8);
-    animation: slideUp 0.3s ease;
-  }
-  .legal-modal::-webkit-scrollbar { width: 3px; }
-  .legal-modal::-webkit-scrollbar-thumb { background: var(--gold-dim); }
-  .legal-header {
-    padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; background: var(--bg-mid); z-index: 2;
-  }
-  .legal-title {
-    font-family: 'Share Tech Mono', monospace; font-size: 0.8rem;
-    font-weight: 700; color: var(--gold-light); letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .legal-body { padding: 20px 24px 28px; }
-  .legal-body h3 {
-    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
-    color: var(--gold); letter-spacing: 0.18em; text-transform: uppercase;
-    margin: 18px 0 6px; border-bottom: 1px solid rgba(201,168,76,0.1);
-    padding-bottom: 4px;
-  }
-  .legal-body h3:first-child { margin-top: 0; }
-  .legal-body p {
-    font-size: 0.62rem; color: var(--text-dim); line-height: 1.8;
-    letter-spacing: 0.03em; margin-bottom: 8px;
-  }
-  .legal-body a { color: var(--gold-dim); text-decoration: none; }
-  .legal-body a:hover { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -1427,14 +1367,6 @@
 </div>
 
 <script>
-function openLegal(type) {
-  document.getElementById(type + 'Overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeLegal(type) {
-  document.getElementById(type + 'Overlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
 const STORAGE_KEY = 'orokin_vault_v3';
 const WFCD_BASE   = 'https://cdn.jsdelivr.net/npm/warframe-items/data/json/';
 
@@ -2095,9 +2027,9 @@ window.addEventListener('scroll', () => {
     <div class="footer-ornament-line"></div>
   </div>
   <div class="footer-links">
-    <a href="#" onclick="openLegal('terms');return false;">Terms of Service</a>
+    <a href="https://www.warframe.com/terms" target="_blank" rel="noopener">Terms of Service</a>
     <div class="footer-divider"></div>
-    <a href="#" onclick="openLegal('privacy');return false;">Privacy Policy</a>
+    <a href="https://www.warframe.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
   </div>
   <div class="footer-credits">
     <p>
@@ -2111,59 +2043,5 @@ window.addEventListener('scroll', () => {
   </div>
 </footer>
 
-
-<!-- TERMS MODAL -->
-<div class="legal-overlay" id="termsOverlay" onclick="if(event.target===this)closeLegal('terms')">
-  <div class="legal-modal">
-    <div class="legal-header">
-      <div class="legal-title">Terms of Service</div>
-      <button class="legal-close" onclick="closeLegal('terms')" aria-label="Close">✕</button>
-    </div>
-    <div class="legal-body">
-      <h3>1. Acceptance</h3>
-      <p>By accessing Void Codex you agree to these terms. If you do not agree, please do not use the site.</p>
-      <h3>2. About Void Codex</h3>
-      <p>Void Codex is a free, fan-made community tool for Warframe players. It is not affiliated with, endorsed by, or connected to Digital Extremes in any way. Warframe and all related assets are the property of Digital Extremes.</p>
-      <h3>3. Use of the Site</h3>
-      <p>Void Codex is provided for personal, non-commercial use only. You may not reproduce, distribute, or use any part of this site for commercial purposes without permission.</p>
-      <h3>4. Third-Party Data</h3>
-      <p>World State data is sourced from the public <a href="https://warframestat.us" target="_blank">warframestat.us</a> API. We have no control over the accuracy, availability, or continuity of this data.</p>
-      <h3>5. No Warranties</h3>
-      <p>This site is provided "as is" without warranties of any kind. We do not guarantee that the site will be available at all times or that data will always be accurate or up to date.</p>
-      <h3>6. Limitation of Liability</h3>
-      <p>Void Codex and its contributors shall not be liable for any damages arising from the use or inability to use this site.</p>
-      <h3>7. Changes</h3>
-      <p>These terms may be updated at any time. Continued use of the site constitutes acceptance of any changes.</p>
-    </div>
-  </div>
-</div>
-
-<!-- PRIVACY MODAL -->
-<div class="legal-overlay" id="privacyOverlay" onclick="if(event.target===this)closeLegal('privacy')">
-  <div class="legal-modal">
-    <div class="legal-header">
-      <div class="legal-title">Privacy Policy</div>
-      <button class="legal-close" onclick="closeLegal('privacy')" aria-label="Close">✕</button>
-    </div>
-    <div class="legal-body">
-      <h3>1. Overview</h3>
-      <p>Void Codex does not collect, store, or transmit any personal data to any server. Your privacy is fully respected.</p>
-      <h3>2. Local Storage</h3>
-      <p>The Prime Tracker feature stores your collection progress locally in your browser using <strong>localStorage</strong>. This data never leaves your device and is not accessible to us or any third party.</p>
-      <h3>3. Third-Party APIs</h3>
-      <p>World State data is fetched from the public <a href="https://warframestat.us" target="_blank">warframestat.us</a> API. When your browser makes this request, your IP address may be visible to that service. Please refer to their privacy policy for details.</p>
-      <h3>4. Cookies</h3>
-      <p>Void Codex does not use cookies of any kind.</p>
-      <h3>5. Analytics</h3>
-      <p>Void Codex does not use any analytics, tracking scripts, or advertising services.</p>
-      <h3>6. Children</h3>
-      <p>Void Codex does not knowingly collect data from children under 13. No data is collected from any user.</p>
-      <h3>7. Changes</h3>
-      <p>This policy may be updated at any time. Changes will be reflected on this page.</p>
-      <h3>8. Contact</h3>
-      <p>For any questions about this policy, please reach out via the Void Codex GitHub repository.</p>
-    </div>
-  </div>
-</div>
 </body>
 </html>
