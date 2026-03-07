@@ -268,7 +268,7 @@ async function fetchWS() {
     ['vallisCycle',  'https://api.warframestat.us/pc/vallisCycle'],
     ['cambionCycle', 'https://api.warframestat.us/pc/cambionCycle'],
     ['zarimanCycle', 'https://api.warframestat.us/pc/zarimanCycle'],
-    ['duviriCycle',  'https://api.warframestat.us/pc/duviriCycle'],
+    ['duviricycle',  'https://api.warframestat.us/pc/duviricycle'],
     ['fissures',     'https://api.warframestat.us/pc/fissures'],
     ['alerts',       'https://api.warframestat.us/pc/alerts'],
     ['sortie',       'https://api.warframestat.us/pc/sortie'],
@@ -291,31 +291,28 @@ const CYCLE_DEFS = [
   {key:'vallisCycle',  name:'Orb Vallis',    stateWarm:true,  totalMs:3600000},
   {key:'cambionCycle', name:'Cambion Drift', cambion:true,    totalMs:3600000},
   {key:'zarimanCycle', name:'Zariman',       zariman:true,    totalMs:3600000},
-  {key:'duviriCycle',  name:'Duviri',         duviri:true,     totalMs:7200000},
+  {key:'duviricycle',  name:'Duviri',        simple:true,     totalMs:3600000},
 ];
 function getCycleState(def, d) {
   if (def.stateDay)  return d.isDay    ? {l:'Day',    c:'day'}     : {l:'Night',   c:'night'};
   if (def.stateWarm) return d.isWarm   ? {l:'Warm',   c:'warm'}    : {l:'Cold',    c:'cold'};
   if (def.cambion)   return (d.active||'fass')==='fass' ? {l:'Fass',c:'fass'} : {l:'Vome',c:'vome'};
   if (def.zariman)   return d.isGrineer? {l:'Grineer',c:'grineer'} : {l:'Corpus',  c:'corpus'};
-  if (def.duviri)    { const s = d.state||''; return {l: s.charAt(0).toUpperCase()+s.slice(1), c:'day'}; }
   return {l: d.state||'', c:'day'};
 }
 
 function renderCycles() {
   const grid = document.getElementById('cyclesGrid');
   const cards = CYCLE_DEFS.map(def => {
-    const d = wsData[def.key]; if (!d) return null;
-    const st = getCycleState(def, d);
-    const expiry = d.expiry || d.activation || null;
-    const ms = expiry ? expMs(expiry) : 0;
-    const pct = expiry ? Math.max(0, Math.min(100, ms / def.totalMs * 100)) : 0;
+    const d = wsData[def.key]; if (!d?.expiry) return null;
+    const ms = expMs(d.expiry), st = getCycleState(def, d);
+    const pct = Math.max(0, Math.min(100, ms / def.totalMs * 100));
     return `<div class="cycle-card">
       <div class="cycle-top">
         <span class="cycle-name">${def.name}</span>
         ${st.l ? `<span class="cycle-state state-${st.c}">${st.l}</span>` : ''}
       </div>
-      <div class="cycle-timer"${expiry ? ` data-expiry="${expiry}"` : ''}>${expiry ? fmt(Math.max(0,ms)) : '—'}</div>
+      <div class="cycle-timer" data-expiry="${d.expiry}">${fmt(Math.max(0,ms))}</div>
       <div class="cycle-bar"><div class="cycle-fill fill-${st.c}" style="width:${pct}%"></div></div>
     </div>`;
   }).filter(Boolean);
@@ -401,7 +398,7 @@ function tick() {
     el.textContent = fmt(Math.max(0,ms));
     if (ms <= 0) expired = true;
   });
-  if (expired) { fetchWS(); }
+  if (expired) fetchWS();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
