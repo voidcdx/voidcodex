@@ -112,10 +112,11 @@
   .tier-tag { font-size: 0.52rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 1px 6px; border: 1px solid; white-space: nowrap; flex-shrink: 0; }
   .tier-lith    { color: #b87333; border-color: rgba(184,115,51,0.5);  background: rgba(184,115,51,0.08); }
   .tier-meso    { color: #c0c0c0; border-color: rgba(192,192,192,0.4); background: rgba(192,192,192,0.06); }
-  .tier-neo     { color: var(--gold); border-color: rgba(201,168,76,0.5); background: rgba(201,168,76,0.07); }
-  .tier-axi     { color: #7ec8e3; border-color: rgba(126,200,227,0.4); background: rgba(126,200,227,0.07); }
+  .tier-neo     { color: #7ec8e3; border-color: rgba(126,200,227,0.4); background: rgba(126,200,227,0.07); }
+  .tier-axi     { color: var(--gold); border-color: rgba(201,168,76,0.5); background: rgba(201,168,76,0.07); }
   .tier-requiem { color: #c070d0; border-color: rgba(192,112,208,0.4); background: rgba(192,112,208,0.07); }
   .tier-omnia   { color: #e8e8e8; border-color: rgba(232,232,232,0.4); background: rgba(232,232,232,0.07); }
+  .sp-tag { font-size: 0.45rem; font-weight: 700; letter-spacing: 0.08em; padding: 1px 5px; border: 1px solid rgba(232,80,42,0.5); color: #e85a30; background: rgba(232,80,42,0.08); flex-shrink: 0; }
 
   .row-info { flex: 1; min-width: 0; }
   .row-main { font-size: 0.68rem; color: var(--text-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -493,13 +494,14 @@ function renderFissures() {
   if (!wsData.fissures) { el.innerHTML=`<div class="empty-msg">No data.</div>`; return; }
   let items = wsData.fissures.filter(f=>!f.expired);
   if (fTab==='basic')    items = items.filter(f=>!f.isHard&&!f.isStorm&&f.tier!=='Requiem');
-  if (fTab==='railjack') items = items.filter(f=>f.isStorm);
-  if (fTab==='steel')    items = items.filter(f=>f.isHard);
+  if (fTab==='railjack') items = items.filter(f=>f.isStorm&&f.tier!=='Requiem');
+  if (fTab==='steel')    items = items.filter(f=>f.isHard&&f.tier!=='Requiem');
   if (fTab==='requiem')  items = items.filter(f=>f.tier==='Requiem');
   items.sort((a,b)=>(TIER_ORD[a.tier]??9)-(TIER_ORD[b.tier]??9));
   if (!items.length) { el.innerHTML=`<div class="empty-msg">No active fissures.</div>`; return; }
   el.innerHTML = items.map(f=>`<div class="fissure-row">
     <span class="tier-tag tier-${(f.tier||'lith').toLowerCase()}">${f.tier}</span>
+    ${fTab==='requiem'&&f.isHard ? '<span class="sp-tag">SP</span>' : ''}
     <div class="row-info">
       <div class="row-main">${f.missionType||'—'}</div>
       <div class="row-sub">${f.node||'—'}</div>
