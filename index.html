@@ -136,7 +136,7 @@
   .tier-omnia   { color: #e8e8e8; border-color: rgba(232,232,232,0.4); background: rgba(232,232,232,0.07); }
   .sp-tag { font-size: 0.45rem; font-weight: 700; letter-spacing: 0.08em; padding: 1px 5px; border: 1px solid rgba(232,80,42,0.5); color: #e85a30; background: rgba(232,80,42,0.08); flex-shrink: 0; }
 
-  .row-info { flex: 1; min-width: 0; }
+  .row-info { flex: 1; min-width: 0; overflow: hidden; }
   .row-main { font-size: 0.68rem; color: var(--text-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .row-sub  { font-size: 0.57rem; color: var(--text-dim); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .row-timer { font-size: 0.6rem; color: var(--gold); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
@@ -260,20 +260,21 @@
   }
 
   @media (max-width: 600px) {
-    .page-wrap { padding: 0 14px; }
-    .grid-container {
-      grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-      padding: 14px 0 48px;
-      gap: 12px;
-    }
-    .card-top { padding: 10px 10px 8px; gap: 8px; }
-    .card-img { width: 44px; height: 44px; }
-    .card-name { font-size: 0.72rem; }
-    .card-info { padding-right: 40px; }
-    .card-progress { padding: 8px 10px; }
-    .tabs-wrapper { padding: 16px 0 0; gap: 4px; }
-    .tab-btn { font-size: 0.62rem; padding: 6px 13px; }
-    .vaulted-toggle-wrap { margin-left: 0; }
+    html { font-size: 100%; }
+    .page-wrap { padding: 12px 12px 48px; width: 100%; }
+    .section { margin-bottom: 14px; }
+    .section-title { margin-bottom: 8px; }
+    .news-events-row { margin-bottom: 10px; }
+    .main-grid { gap: 12px; }
+    .news-item { padding: 8px 6px; }
+    .news-title { font-size: 0.68rem; white-space: normal; word-break: break-word; }
+    .fissure-row { min-width: 0; max-width: 100%; }
+    .row-main { font-size: 0.64rem; }
+    .row-sub  { font-size: 0.54rem; }
+    .row-timer { font-size: 0.56rem; }
+    .ftabs { gap: 2px; }
+    .ftab { font-size: 0.5rem; padding: 4px 8px; }
+    .alert-mission { font-size: 0.64rem; }
   }
 
   /* NEWS + EVENTS ROW */
@@ -337,7 +338,7 @@
   .events-grid { display: flex; flex-direction: column; gap: 2px; }
 
   /* LAYOUT B — Full-width Hero Cycles + generous spacing */
-  .page-wrap { max-width: 1400px; padding: 24px 32px 64px; }
+  .page-wrap { max-width: 1400px; width: 100%; padding: 24px 32px 64px; }
   .cycles-strip { grid-template-columns: repeat(5,1fr); gap: 12px; }
   .cycle-card { padding: 14px 16px; gap: 8px; }
   .cycle-name { font-size: 0.75rem; }
