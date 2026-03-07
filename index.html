@@ -527,10 +527,7 @@
     <a href="#" onclick="openLegal('privacy');return false;">Privacy Policy</a>
   </div>
   <div class="footer-credits">
-    <p>
-      World State data via <a href="https://warframestat.us" target="_blank" rel="noopener">warframestat.us</a>
-      &nbsp;·&nbsp; Warframe and all related assets are property of <a href="https://www.warframe.com" target="_blank" rel="noopener">Digital Extremes</a>
-    </p>
+    <p>© 2026 Void Codex · Not affiliated with Digital Extremes · Warframe is property of Digital Extremes</p>
   </div>
 </footer>
 
@@ -716,7 +713,7 @@ function renderFissures() {
     <span class="tier-tag tier-${(f.tier||'lith').toLowerCase()}">${f.tier}</span>
     ${fTab==='requiem'&&f.isHard ? '<span class="sp-tag">SP</span>' : ''}
     <div class="row-info">
-      <div class="row-main">${f.missionType||'—'}</div>
+      <div class="row-main">${(f.missionType||'—').replace('Extermination','Exterminate')}</div>
       <div class="row-sub">${f.node||'—'}</div>
     </div>
     <span class="row-timer" data-expiry="${f.expiry}">${fmt(Math.max(0,expMs(f.expiry)))}</span>
