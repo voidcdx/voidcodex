@@ -179,17 +179,45 @@
     position: relative;
     z-index: 10;
     margin-top: 40px;
-    border-top: 1px solid var(--border);
+    border-top: none;
     padding: 24px 32px 32px;
     background: linear-gradient(0deg, rgba(201,168,76,0.03) 0%, transparent 100%);
+    text-align: center;
+  }
+  .footer-top-ornament {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .footer-top-orn-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+  }
+  .footer-top-orn-diamond {
+    width: 6px; height: 6px;
+    background: var(--gold);
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px rgba(201,168,76,0.5);
+    flex-shrink: 0;
+  }
+  .footer-top-orn-dot {
+    width: 3px; height: 3px;
+    background: rgba(201,168,76,0.4);
+    transform: rotate(45deg);
+    flex-shrink: 0;
   }
 
   .footer-links {
     display: flex;
     justify-content: center;
-    gap: 24px;
-    margin-bottom: 20px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
     flex-wrap: wrap;
+    width: 100%;
+    text-align: center;
   }
 
   .footer-links a {
@@ -204,12 +232,7 @@
 
   .footer-links a:hover { color: var(--gold); }
 
-  .footer-divider {
-    width: 1px;
-    height: 12px;
-    background: var(--border);
-    align-self: center;
-  }
+
 
   .footer-credits {
     display: flex;
@@ -515,14 +538,15 @@
 </div>
 
 <footer>
-  <div class="footer-ornament">
-    <div class="footer-ornament-line"></div>
-    <div class="footer-ornament-diamond"></div>
-    <div class="footer-ornament-line"></div>
+  <div class="footer-top-ornament">
+    <div class="footer-top-orn-line"></div>
+    <div class="footer-top-orn-dot"></div>
+    <div class="footer-top-orn-diamond"></div>
+    <div class="footer-top-orn-dot"></div>
+    <div class="footer-top-orn-line"></div>
   </div>
   <div class="footer-links">
     <a href="#" onclick="openLegal('terms');return false;">Terms of Service</a>
-    <div class="footer-divider"></div>
     <a href="#" onclick="openLegal('privacy');return false;">Privacy Policy</a>
   </div>
   <div class="footer-credits">
