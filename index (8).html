@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Void Codex · Preview A — Dense</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --gold: #c9a84c; --gold-light: #e8cc7a; --gold-dim: #7a6030; --gold-glow: rgba(201,168,76,0.18);
+    --bg-deepest: #05040a; --bg-mid: #110f1c; --bg-card: #0e0c18;
+    --border: rgba(201,168,76,0.15); --border-b: rgba(201,168,76,0.35);
+    --text: #d4c9a8; --text-dim: #8a7f65; --text-bright: #f0e6c0;
+    --complete: #2ecc71; --menu-width: 280px;
+  }
+  html { font-size: 115%; }
+  html, body { height: 100%; background: var(--bg-deepest); color: var(--text); font-family: 'Share Tech Mono', monospace; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(40,20,80,0.4) 0%, transparent 65%), radial-gradient(ellipse 90% 50% at 50% 40%, rgba(201,168,76,0.04) 0%, transparent 65%); pointer-events: none; z-index: 0; }
+
+  /* MENU */
+  .menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 900; pointer-events: none; transition: background 0.3s; }
+  .menu-overlay.open { background: rgba(0,0,0,0.6); pointer-events: all; }
+  .side-menu { position: fixed; top: 0; right: 0; width: var(--menu-width); height: 100%; background: var(--bg-mid); border-left: 1px solid var(--border); z-index: 1000; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; }
+  .side-menu.open { transform: translateX(0); box-shadow: -4px 0 40px rgba(0,0,0,0.6); }
+  .menu-header { padding: 32px 24px 20px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; position: relative; }
+  .menu-site-name { font-family: 'Cinzel Decorative', serif; font-size: 1.1rem; color: var(--gold-light); letter-spacing: 0.08em; }
+  .menu-tagline { font-size: 0.55rem; color: var(--text-dim); letter-spacing: 0.18em; text-transform: uppercase; }
+  .menu-close { position: absolute; top: 18px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 1.1rem; cursor: pointer; padding: 6px; transition: color 0.2s; }
+  .menu-close:hover { color: var(--gold-light); }
+  .menu-nav { flex: 1; padding: 12px 0; display: flex; flex-direction: column; }
+  .menu-nav a { display: flex; align-items: center; gap: 14px; padding: 14px 24px; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; border-left: 2px solid transparent; transition: all 0.2s; }
+  .menu-nav a:hover { color: var(--gold-light); background: rgba(201,168,76,0.05); border-left-color: var(--gold); }
+  .menu-nav a.active { color: var(--gold-light); background: rgba(201,168,76,0.08); border-left-color: var(--gold); }
+  .menu-nav a .nav-icon { font-size: 0.9rem; width: 18px; text-align: center; }
+  .menu-footer { padding: 16px 24px; border-top: 1px solid var(--border); font-size: 0.52rem; color: var(--text-dim); letter-spacing: 0.1em; opacity: 0.5; }
+
+  /* TOPBAR */
+  .topbar { position: fixed; top: 0; left: 0; right: 0; height: 54px; background: rgba(5,4,10,0.92); border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 800; }
+  .topbar-title { font-family: 'Cinzel Decorative', serif; font-size: 1rem; color: var(--gold-light); letter-spacing: 0.1em; text-shadow: 0 0 20px rgba(201,168,76,0.35); }
+  .hamburger { background: none; border: none; color: var(--text-dim); cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 6px; transition: color 0.2s; }
+  .hamburger:hover { color: var(--gold-light); }
+  .hamburger span { display: block; width: 20px; height: 1.5px; background: currentColor; }
+
+  .back-to-top { position: fixed; bottom: 28px; right: 20px; width: 40px; height: 40px; background: var(--bg-mid); border: 1px solid rgba(201,168,76,0.3); color: var(--gold); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 700; opacity: 0; pointer-events: none; transition: opacity 0.3s; clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%); }
+  .back-to-top.visible { opacity: 1; pointer-events: all; }
+
+  /* PAGE */
+  .page { position: relative; z-index: 1; padding-top: 54px; min-height: 100vh; }
+  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 20px 20px 64px; }
+
+  /* COMPACT HEADER */
+  .page-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-diamond { width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); box-shadow: 0 0 10px var(--gold); flex-shrink: 0; }
+  .page-title { font-family: 'Cinzel Decorative', serif; font-size: clamp(1rem, 2.5vw, 1.3rem); color: var(--gold-light); letter-spacing: 0.1em; }
+  .page-sub { font-size: 0.58rem; color: var(--text-dim); letter-spacing: 0.2em; text-transform: uppercase; }
+  .refresh-bar { display: flex; align-items: center; gap: 6px; font-size: 0.56rem; color: var(--text-dim); letter-spacing: 0.08em; }
+  .refresh-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--complete); animation: blink 2s ease-in-out infinite; flex-shrink: 0; }
+  @keyframes blink { 0%,100%{opacity:0.3}50%{opacity:1} }
+
+  /* SECTION */
+  .section { margin-bottom: 20px; }
+  .section-title { display: flex; align-items: center; gap: 8px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .section-title-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* CYCLES — horizontal strip */
+  .cycles-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  @media (max-width: 900px) { .cycles-strip { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px) { .cycles-strip { grid-template-columns: repeat(2, 1fr); } }
+
+  .cycle-card { background: var(--bg-card); border: 1px solid var(--border); padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; transition: border-color 0.2s; }
+  .cycle-card:hover { border-color: var(--border-b); }
+  .cycle-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .cycle-name { font-size: 0.66rem; font-weight: 700; color: var(--text-bright); letter-spacing: 0.04em; }
+  .cycle-state { font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; padding: 1px 5px; border: 1px solid currentColor; }
+  .state-day    { color: #e8a030; }
+  .state-night  { color: #5b8dd9; }
+  .state-warm   { color: #e85a30; }
+  .state-cold   { color: #5b8dd9; }
+  .state-fass   { color: #e8a030; }
+  .state-vome   { color: #5b8dd9; }
+  .state-grineer { color: #e85a30; }
+  .state-corpus  { color: #4ecdc4; }
+  .cycle-timer { font-size: 0.75rem; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .cycle-bar { height: 2px; background: rgba(201,168,76,0.08); }
+  .cycle-fill { height: 100%; transition: width 0.5s linear; }
+  .fill-day    { background: linear-gradient(90deg, #a06010, #e8a030); }
+  .fill-night  { background: linear-gradient(90deg, #2040a0, #5b8dd9); }
+  .fill-warm   { background: linear-gradient(90deg, #a02010, #e85a30); }
+  .fill-cold   { background: linear-gradient(90deg, #2040a0, #5b8dd9); }
+  .fill-fass   { background: linear-gradient(90deg, #a06010, #e8a030); }
+  .fill-vome   { background: linear-gradient(90deg, #2040a0, #5b8dd9); }
+
+  /* MAIN GRID — 3 col: fissures | alerts | endgame */
+  .main-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .main-grid { grid-template-columns: 1fr; } }
+
+  /* FISSURE TABS */
+  .ftabs { display: flex; gap: 3px; margin-bottom: 8px; flex-wrap: wrap; }
+  .ftab { font-family: 'Share Tech Mono', monospace; font-size: 0.54rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; background: transparent; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; transition: all 0.2s; clip-path: polygon(5px 0%, calc(100% - 5px) 0%, 100% 50%, calc(100% - 5px) 100%, 5px 100%, 0% 50%); white-space: nowrap; }
+  .ftab:hover { color: var(--gold); border-color: var(--gold-dim); }
+  .ftab.active { color: var(--bg-deepest); background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-color: var(--gold-light); }
+
+  /* ROWS */
+  .item-list { display: flex; flex-direction: column; gap: 5px; }
+
+  .fissure-row { background: var(--bg-card); border: 1px solid var(--border); padding: 7px 10px; display: flex; align-items: center; gap: 8px; transition: border-color 0.2s; }
+  .fissure-row:hover { border-color: var(--border-b); }
+
+  .tier-tag { font-size: 0.52rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 1px 6px; border: 1px solid; white-space: nowrap; flex-shrink: 0; }
+  .tier-lith    { color: #b87333; border-color: rgba(184,115,51,0.5);  background: rgba(184,115,51,0.08); }
+  .tier-meso    { color: #c0c0c0; border-color: rgba(192,192,192,0.4); background: rgba(192,192,192,0.06); }
+  .tier-neo     { color: var(--gold); border-color: rgba(201,168,76,0.5); background: rgba(201,168,76,0.07); }
+  .tier-axi     { color: #7ec8e3; border-color: rgba(126,200,227,0.4); background: rgba(126,200,227,0.07); }
+  .tier-requiem { color: #c070d0; border-color: rgba(192,112,208,0.4); background: rgba(192,112,208,0.07); }
+  .tier-omnia   { color: #e8e8e8; border-color: rgba(232,232,232,0.4); background: rgba(232,232,232,0.07); }
+
+  .row-info { flex: 1; min-width: 0; }
+  .row-main { font-size: 0.68rem; color: var(--text-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-sub  { font-size: 0.57rem; color: var(--text-dim); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-timer { font-size: 0.6rem; color: var(--gold); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  /* ALERTS */
+  .alert-row { background: var(--bg-card); border: 1px solid var(--border); padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; transition: border-color 0.2s; }
+  .alert-row:hover { border-color: var(--border-b); }
+  .alert-top { display: flex; align-items: center; gap: 6px; }
+  .alert-mission { font-size: 0.68rem; color: var(--text-bright); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .alert-reward { font-size: 0.58rem; color: var(--gold-light); background: rgba(201,168,76,0.07); border: 1px solid rgba(201,168,76,0.2); padding: 1px 7px; align-self: flex-start; letter-spacing: 0.08em; }
+
+  .faction-tag { font-size: 0.48rem; font-weight: 700; padding: 1px 5px; border: 1px solid; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; }
+  .fc-corpus   { color: #4ecdc4; border-color: rgba(78,205,196,0.4);  background: rgba(78,205,196,0.06); }
+  .fc-grineer  { color: #e8502a; border-color: rgba(232,80,42,0.4);   background: rgba(232,80,42,0.06); }
+  .fc-infested { color: #6abf40; border-color: rgba(106,191,64,0.4);  background: rgba(106,191,64,0.06); }
+  .fc-orokin   { color: var(--gold); border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.06); }
+
+  /* ENDGAME */
+  .endgame-card { background: var(--bg-card); border: 1px solid var(--border); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; transition: border-color 0.2s; }
+  .endgame-card:last-child { margin-bottom: 0; }
+  .endgame-card:hover { border-color: var(--border-b); }
+  .eg-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .eg-title { font-size: 0.7rem; font-weight: 700; color: var(--gold-light); letter-spacing: 0.12em; text-transform: uppercase; }
+  .eg-sub { font-size: 0.57rem; color: var(--text-dim); letter-spacing: 0.06em; }
+  .mission-rows { display: flex; flex-direction: column; gap: 4px; }
+  .mission-row { display: flex; align-items: flex-start; gap: 7px; padding: 5px 8px; background: rgba(5,4,10,0.5); border: 1px solid rgba(201,168,76,0.07); }
+  .mission-num { font-size: 0.5rem; color: var(--text-dim); width: 12px; flex-shrink: 0; padding-top: 2px; }
+  .mission-info { flex: 1; min-width: 0; }
+  .mission-type { font-size: 0.65rem; color: var(--text-bright); }
+  .mission-node { font-size: 0.57rem; color: var(--text-dim); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mission-mod  { font-size: 0.53rem; color: var(--gold-dim); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .loading-state { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 24px; }
+  .loading-spinner { width: 24px; height: 24px; border: 2px solid rgba(201,168,76,0.1); border-top-color: var(--gold); border-right-color: var(--gold-dim); animation: spin 1.2s linear infinite; flex-shrink: 0; }
+  @keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
+  .loading-text { font-size: 0.58rem; letter-spacing: 0.2em; color: var(--text-dim); animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.4}50%{opacity:1} }
+  .empty-msg { font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.12em; text-align: center; padding: 14px; opacity: 0.6; }
+
+  footer { border-top: 1px solid var(--border); padding: 16px 24px; text-align: center; font-size: 0.52rem; color: var(--text-dim); letter-spacing: 0.1em; opacity: 0.45; position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<nav class="side-menu" id="sideMenu">
+  <button class="menu-close" onclick="closeMenu()">✕</button>
+  <div class="menu-header">
+    <div class="menu-site-name">Void Codex</div>
+    <div class="menu-tagline">Orokin Archive</div>
+  </div>
+  <nav class="menu-nav">
+    <a href="index.html" class="active"><span class="nav-icon">⌂</span> Home</a>
+    <a href="tracker.html"><span class="nav-icon">◈</span> Prime Tracker</a>
+  </nav>
+  <div class="menu-footer">Void Codex · Community Tool</div>
+</nav>
+
+<div class="topbar">
+  <div class="topbar-title">Void Codex</div>
+  <button class="hamburger" onclick="openMenu()"><span></span><span></span><span></span></button>
+</div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
+<div class="page">
+  <div class="page-wrap">
+
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-diamond"></div>
+        <div>
+          <div class="page-title">World State</div>
+          <div class="page-sub">Live Data</div>
+        </div>
+      </div>
+      <div class="refresh-bar">
+        <div class="refresh-dot"></div>
+        <span id="refreshLabel">Connecting…</span>
+      </div>
+    </div>
+
+    <!-- CYCLES -->
+    <div class="section">
+      <div class="section-title">✦ World Cycles <div class="section-title-line"></div></div>
+      <div class="cycles-strip" id="cyclesGrid">
+        <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
+      </div>
+    </div>
+
+    <!-- MAIN 3-COL -->
+    <div class="main-grid">
+      <!-- FISSURES -->
+      <div class="section">
+        <div class="section-title">✦ Void Fissures <div class="section-title-line"></div></div>
+        <div class="ftabs">
+          <button class="ftab active" onclick="setFTab('basic',this)">Origin System</button>
+          <button class="ftab" onclick="setFTab('steel',this)">Steel Path</button>
+          <button class="ftab" onclick="setFTab('railjack',this)">Railjack</button>
+        </div>
+        <div class="item-list" id="fissureList">
+          <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div class="section">
+        <div class="section-title">✦ Alerts <div class="section-title-line"></div></div>
+        <div class="item-list" id="alertList">
+          <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
+        </div>
+      </div>
+
+      <!-- ENDGAME -->
+      <div class="section">
+        <div class="section-title">✦ Endgame <div class="section-title-line"></div></div>
+        <div id="endgameGrid">
+          <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>Void Codex · Community Tool · Not affiliated with Digital Extremes · Data via warframestat.us</footer>
+
+<script>
+const API = 'https://api.warframestat.us/pc';
+let wsData = {}, fTab = 'basic';
+
+function openMenu()  { document.getElementById('sideMenu').classList.add('open');    document.getElementById('menuOverlay').classList.add('open'); }
+function closeMenu() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+window.addEventListener('scroll', () => { document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 300); });
+
+function fmt(ms) {
+  if (ms <= 0) return '—';
+  const s = Math.floor(ms/1000), h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  if (h > 0) return `${h}h ${m}m ${sec}s`;
+  if (m > 0) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+function expMs(iso) { return new Date(iso).getTime() - Date.now(); }
+
+async function fetchWS() {
+  const endpoints = [
+    ['cetusCycle',   'https://corsproxy.io/?https://api.warframestat.us/pc/cetusCycle'],
+    ['vallisCycle',  'https://corsproxy.io/?https://api.warframestat.us/pc/vallisCycle'],
+    ['cambionCycle', 'https://corsproxy.io/?https://api.warframestat.us/pc/cambionCycle'],
+    ['zarimanCycle', 'https://corsproxy.io/?https://api.warframestat.us/pc/zarimanCycle'],
+    ['fissures',     'https://corsproxy.io/?https://api.warframestat.us/pc/fissures'],
+    ['alerts',       'https://corsproxy.io/?https://api.warframestat.us/pc/alerts'],
+    ['sortie',       'https://corsproxy.io/?https://api.warframestat.us/pc/sortie'],
+    ['archonHunt',   'https://corsproxy.io/?https://api.warframestat.us/pc/archonHunt'],
+  ];
+  const results = await Promise.allSettled(
+    endpoints.map(([, url]) => fetch(url).then(r => { if (!r.ok) throw new Error(); return r.json(); }))
+  );
+  let anySuccess = false;
+  results.forEach((r, i) => {
+    if (r.status === 'fulfilled') { wsData[endpoints[i][0]] = r.value; anySuccess = true; }
+  });
+  if (!anySuccess) { document.getElementById('refreshLabel').textContent = '⚠ Failed to load data'; return; }
+  renderAll();
+  document.getElementById('refreshLabel').textContent = 'Live · ' + new Date().toLocaleTimeString();
+}
+
+const CYCLE_DEFS = [
+  {key:'cetusCycle',   name:'Earth',         stateDay:true,   totalMs:9000000},
+  {key:'vallisCycle',  name:'Orb Vallis',    stateWarm:true,  totalMs:3600000},
+  {key:'cambionCycle', name:'Cambion Drift', cambion:true,    totalMs:3600000},
+  {key:'zarimanCycle', name:'Zariman',       zariman:true,    totalMs:3600000},
+];
+function getCycleState(def, d) {
+  if (def.stateDay)  return d.isDay    ? {l:'Day',    c:'day'}     : {l:'Night',   c:'night'};
+  if (def.stateWarm) return d.isWarm   ? {l:'Warm',   c:'warm'}    : {l:'Cold',    c:'cold'};
+  if (def.cambion)   return (d.active||'fass')==='fass' ? {l:'Fass',c:'fass'} : {l:'Vome',c:'vome'};
+  if (def.zariman)   return d.isGrineer? {l:'Grineer',c:'grineer'} : {l:'Corpus',  c:'corpus'};
+  return {l: d.state||'', c:'day'};
+}
+
+function renderCycles() {
+  const grid = document.getElementById('cyclesGrid');
+  const cards = CYCLE_DEFS.map(def => {
+    const d = wsData[def.key]; if (!d?.expiry) return null;
+    const ms = expMs(d.expiry), st = getCycleState(def, d);
+    const pct = Math.max(0, Math.min(100, ms / def.totalMs * 100));
+    return `<div class="cycle-card">
+      <div class="cycle-top">
+        <span class="cycle-name">${def.name}</span>
+        ${st.l ? `<span class="cycle-state state-${st.c}">${st.l}</span>` : ''}
+      </div>
+      <div class="cycle-timer" data-expiry="${d.expiry}">${fmt(Math.max(0,ms))}</div>
+      <div class="cycle-bar"><div class="cycle-fill fill-${st.c}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).filter(Boolean);
+  grid.innerHTML = cards.length ? cards.join('') : `<div class="empty-msg">No cycle data.</div>`;
+}
+
+const TIER_ORD = {Lith:0,Meso:1,Neo:2,Axi:3,Requiem:4,Omnia:5};
+function setFTab(f, btn) {
+  fTab = f;
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFissures();
+}
+function renderFissures() {
+  const el = document.getElementById('fissureList');
+  if (!wsData.fissures) { el.innerHTML=`<div class="empty-msg">No data.</div>`; return; }
+  let items = wsData.fissures.filter(f=>!f.expired);
+  if (fTab==='basic')    items = items.filter(f=>!f.isHard&&!f.isStorm);
+  if (fTab==='railjack') items = items.filter(f=>f.isStorm);
+  if (fTab==='steel')    items = items.filter(f=>f.isHard);
+  items.sort((a,b)=>(TIER_ORD[a.tier]??9)-(TIER_ORD[b.tier]??9));
+  if (!items.length) { el.innerHTML=`<div class="empty-msg">No active fissures.</div>`; return; }
+  el.innerHTML = items.map(f=>`<div class="fissure-row">
+    <span class="tier-tag tier-${(f.tier||'lith').toLowerCase()}">${f.tier}</span>
+    <div class="row-info">
+      <div class="row-main">${f.missionType||'—'}</div>
+      <div class="row-sub">${f.node||'—'}</div>
+    </div>
+    <span class="row-timer" data-expiry="${f.expiry}">${fmt(Math.max(0,expMs(f.expiry)))}</span>
+  </div>`).join('');
+}
+
+function renderAlerts() {
+  const el = document.getElementById('alertList');
+  if (!wsData.alerts) { el.innerHTML=`<div class="empty-msg">No data.</div>`; return; }
+  const items = (wsData.alerts||[]).filter(a=>!a.expired);
+  if (!items.length) { el.innerHTML=`<div class="empty-msg">No active alerts.</div>`; return; }
+  el.innerHTML = items.map(a=>{
+    const m=a.mission||{}, ms=expMs(a.expiry);
+    const fc=(m.faction||'').toLowerCase();
+    const fcc=fc.includes('corpus')?'fc-corpus':fc.includes('grineer')?'fc-grineer':fc.includes('infested')?'fc-infested':'fc-orokin';
+    const r=m.reward; let reward=null;
+    if(r){ if(r.asString) reward=r.asString; else { const p=[]; if(r.items?.length)p.push(...r.items); if(r.countedItems?.length)p.push(...r.countedItems.map(i=>`${i.count}× ${i.type}`)); if(r.credits)p.push(`${r.credits.toLocaleString()} ¢`); reward=p.join(', ')||null; } }
+    return `<div class="alert-row">
+      <div class="alert-top">
+        <span class="alert-mission">${m.type||'—'}</span>
+        ${m.faction?`<span class="faction-tag ${fcc}">${m.faction}</span>`:''}
+        <span class="row-timer" data-expiry="${a.expiry}">${fmt(Math.max(0,ms))}</span>
+      </div>
+      <div class="row-sub">${m.node||'—'}</div>
+      ${reward?`<div class="alert-reward">✦ ${reward}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderEndgame() {
+  const grid = document.getElementById('endgameGrid'); const cards=[];
+  if (wsData.sortie&&!wsData.sortie.expired) {
+    const s=wsData.sortie, ms=expMs(s.expiry);
+    cards.push(`<div class="endgame-card">
+      <div class="eg-head"><span class="eg-title">Sortie</span><span class="row-timer" data-expiry="${s.expiry}">${fmt(Math.max(0,ms))}</span></div>
+      ${s.faction?`<div class="eg-sub">${s.faction}</div>`:''}
+      <div class="mission-rows">${(s.variants||[]).map((v,i)=>`<div class="mission-row"><span class="mission-num">${i+1}</span><div class="mission-info"><div class="mission-type">${v.missionType||'—'}</div><div class="mission-node">${v.node||'—'}</div>${v.modifier?`<div class="mission-mod">${v.modifier}</div>`:''}</div></div>`).join('')}</div>
+    </div>`);
+  }
+  if (wsData.archonHunt&&!wsData.archonHunt.expired) {
+    const a=wsData.archonHunt, ms=expMs(a.expiry);
+    cards.push(`<div class="endgame-card">
+      <div class="eg-head"><span class="eg-title">Archon Hunt</span><span class="row-timer" data-expiry="${a.expiry}">${fmt(Math.max(0,ms))}</span></div>
+      ${a.boss?`<div class="eg-sub">${a.boss}</div>`:''}
+      <div class="mission-rows">${(a.missions||[]).map((m,i)=>`<div class="mission-row"><span class="mission-num">${i+1}</span><div class="mission-info"><div class="mission-type">${m.type||'—'}</div><div class="mission-node">${m.node||'—'}</div></div></div>`).join('')}</div>
+    </div>`);
+  }
+  grid.innerHTML = cards.length ? cards.join('') : `<div class="empty-msg">No endgame data.</div>`;
+}
+
+function renderAll() { renderCycles(); renderFissures(); renderAlerts(); renderEndgame(); }
+
+function tick() {
+  let expired = false;
+  document.querySelectorAll('[data-expiry]').forEach(el => {
+    const ms = new Date(el.dataset.expiry).getTime() - Date.now();
+    el.textContent = fmt(Math.max(0,ms));
+    if (ms <= 0) expired = true;
+  });
+  if (expired) { fetchWS(); }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetchWS();
+  setInterval(tick, 1000);
+  setInterval(fetchWS, 60000);
+});
+</script>
+</body>
+</html>
