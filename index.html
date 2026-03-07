@@ -298,7 +298,6 @@
         <div class="ftabs">
           <button class="ftab active" onclick="setFTab('basic',this)">Origin System</button>
           <button class="ftab" onclick="setFTab('steel',this)">Steel Path</button>
-          <button class="ftab" onclick="setFTab('requiem',this)">Requiem</button>
           <button class="ftab" onclick="setFTab('railjack',this)">Railjack</button>
         </div>
         <div class="item-list" id="fissureList">
@@ -492,10 +491,9 @@ function renderFissures() {
   const el = document.getElementById('fissureList');
   if (!wsData.fissures) { el.innerHTML=`<div class="empty-msg">No data.</div>`; return; }
   let items = wsData.fissures.filter(f=>!f.expired);
-  if (fTab==='basic')    items = items.filter(f=>!f.isHard&&!f.isStorm&&f.tier!=='Requiem');
+  if (fTab==='basic')    items = items.filter(f=>!f.isHard&&!f.isStorm);
   if (fTab==='railjack') items = items.filter(f=>f.isStorm);
   if (fTab==='steel')    items = items.filter(f=>f.isHard);
-  if (fTab==='requiem')  items = items.filter(f=>f.tier==='Requiem');
   items.sort((a,b)=>(TIER_ORD[a.tier]??9)-(TIER_ORD[b.tier]??9));
   if (!items.length) { el.innerHTML=`<div class="empty-msg">No active fissures.</div>`; return; }
   el.innerHTML = items.map(f=>`<div class="fissure-row">
