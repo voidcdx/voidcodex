@@ -67,7 +67,24 @@
   /* CYCLES — horizontal strip */
   .cycles-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   @media (max-width: 900px) { .cycles-strip { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 560px) { .cycles-strip { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) {
+    .cycles-strip {
+      display: flex;
+      flex-direction: row;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 10px;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+    .cycles-strip::-webkit-scrollbar { display: none; }
+    .cycles-strip .cycle-card {
+      flex: 0 0 72vw;
+      max-width: 280px;
+      scroll-snap-align: center;
+    }
+  }
 
   .cycle-card { background: var(--bg-card); border: 1px solid var(--border); padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; transition: border-color 0.2s; }
   .cycle-card:hover { border-color: var(--border-b); }
