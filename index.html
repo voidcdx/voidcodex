@@ -35,7 +35,9 @@
   .menu-footer { padding: 16px 24px; border-top: 1px solid var(--border); font-size: 0.52rem; color: var(--text-dim); letter-spacing: 0.1em; opacity: 0.5; }
 
   /* TOPBAR */
-  .topbar { position: fixed; top: 0; left: 0; right: 0; height: 54px; background: rgba(5,4,10,0.92); border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 800; }
+  .topbar { position: fixed; top: 0; left: 0; right: 0; height: 54px; background: rgba(5,4,10,0.92); border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 0; z-index: 800; }
+  .topbar-inner { width: 100%; max-width: 1400px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+  @media (max-width: 600px) { .topbar-inner { padding: 0 14px; } }
   .topbar-title { font-family: 'Cinzel Decorative', serif; font-size: 1rem; color: var(--gold-light); letter-spacing: 0.1em; text-shadow: 0 0 20px rgba(201,168,76,0.35); }
   .hamburger { background: none; border: none; color: var(--text-dim); cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 6px; transition: color 0.2s; }
   .hamburger:hover { color: var(--gold-light); }
@@ -448,8 +450,10 @@
 </nav>
 
 <div class="topbar">
-  <div class="topbar-title">Void Codex</div>
-  <button class="hamburger" onclick="openMenu()"><span></span><span></span><span></span></button>
+  <div class="topbar-inner">
+    <div class="topbar-title">Void Codex</div>
+    <button class="hamburger" onclick="openMenu()"><span></span><span></span><span></span></button>
+  </div>
 </div>
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
 

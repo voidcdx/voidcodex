@@ -59,9 +59,20 @@
     backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
+    justify-content: center;
+    padding: 0;
     z-index: 800;
+  }
+  .topbar-inner {
+    width: 100%;
+    max-width: 1400px;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  @media (max-width: 600px) {
+    .topbar-inner { padding: 0 14px; }
   }
 
   .topbar-title {
@@ -1349,10 +1360,12 @@
 
 <!-- Fixed top bar -->
 <div class="topbar">
-  <div class="topbar-title">Void Codex</div>
-  <button class="hamburger" onclick="openMenu()" aria-label="Open menu">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="topbar-inner">
+    <div class="topbar-title">Void Codex</div>
+    <button class="hamburger" onclick="openMenu()" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </div>
 
 <!-- Menu overlay -->
