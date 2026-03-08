@@ -143,12 +143,35 @@
   .row-sub  { font-size: 0.57rem; color: var(--text-dim); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .row-timer { font-size: 0.6rem; color: var(--gold); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
 
-  /* ALERTS */
-  .alert-row { background: var(--bg-card); border: 1px solid var(--border); padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; transition: border-color 0.2s; }
-  .alert-row:hover { border-color: var(--border-b); }
-  .alert-top { display: flex; align-items: center; gap: 6px; }
-  .alert-mission { font-size: 0.68rem; color: var(--text-bright); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .alert-reward { font-size: 0.58rem; color: var(--gold-light); background: rgba(201,168,76,0.07); border: 1px solid rgba(201,168,76,0.2); padding: 1px 7px; align-self: flex-start; letter-spacing: 0.08em; }
+  /* UNIFIED ALERTS & EVENTS BOX */
+  .unified-box { background: var(--bg-card); border: 1px solid var(--border); overflow: hidden; }
+  .unified-sub-label {
+    font-size: 0.48rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-dim); padding: 6px 12px 4px; opacity: 0.6;
+    border-bottom: 1px solid rgba(201,168,76,0.06);
+  }
+  .u-event-row {
+    padding: 10px 12px; display: flex; align-items: center;
+    justify-content: space-between; gap: 10px;
+    border-bottom: 1px solid rgba(201,168,76,0.06);
+    transition: background 0.2s;
+  }
+  .u-event-row:hover { background: rgba(201,168,76,0.03); }
+  .u-event-name { font-size: 0.7rem; color: var(--gold-light); font-weight: 700; letter-spacing: 0.04em; flex: 1; min-width: 0; }
+  .u-event-badge {
+    font-size: 0.44rem; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 2px 7px; border: 1px solid rgba(46,204,113,0.5);
+    color: var(--complete); background: rgba(46,204,113,0.08); white-space: nowrap; flex-shrink: 0;
+  }
+  .u-alert-row {
+    padding: 9px 12px; display: flex; flex-direction: column; gap: 4px;
+    border-bottom: 1px solid rgba(201,168,76,0.06); transition: background 0.2s;
+  }
+  .u-alert-row:last-child { border-bottom: none; }
+  .u-alert-row:hover { background: rgba(201,168,76,0.03); }
+  .u-alert-top { display: flex; align-items: center; gap: 6px; }
+  .u-alert-mission { font-size: 0.68rem; color: var(--text-bright); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .u-alert-reward { font-size: 0.58rem; color: var(--gold-light); background: rgba(201,168,76,0.07); border: 1px solid rgba(201,168,76,0.2); padding: 1px 7px; align-self: flex-start; letter-spacing: 0.08em; }
 
   .faction-tag { font-size: 0.48rem; font-weight: 700; padding: 1px 5px; border: 1px solid; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; }
   .fc-corpus   { color: #4ecdc4; border-color: rgba(78,205,196,0.4);  background: rgba(78,205,196,0.06); }
@@ -304,11 +327,10 @@
     .back-to-top { right: 12px; bottom: 20px; }
   }
 
-  /* NEWS + EVENTS ROW */
+  /* NEWS ROW */
   .news-events-row { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 4px; align-items: start; }
-  .news-events-row.has-events { grid-template-columns: 65fr 35fr; }
+  .news-events-row.has-events { grid-template-columns: 62fr 38fr; }
   .news-col { margin-bottom: 0; }
-  .events-col { margin-bottom: 0; }
   @media (max-width: 700px) { .news-events-row, .news-events-row.has-events { grid-template-columns: 1fr; } }
 
   /* NEWS */
@@ -343,26 +365,6 @@
     border-top: 1px solid rgba(201,168,76,0.08);
   }
   .news-toggle-btn:hover { color: var(--gold-light); }
-
-  /* EVENTS */
-  .event-card {
-    background: transparent; border: none;
-    padding: 9px 10px; display: flex; flex-direction: column; gap: 5px;
-    position: relative; overflow: hidden;
-  }
-  .event-card::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 70% 100% at 50% 50%, rgba(201,168,76,0.07) 0%, transparent 70%);
-    opacity: 0; transition: opacity 0.35s ease; pointer-events: none;
-  }
-  .event-card:hover::after { opacity: 1; }
-  .event-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-  .event-name { font-size: 0.7rem; font-weight: 700; color: var(--gold-light); letter-spacing: 0.06em; line-height: 1.3; }
-  .event-timer { font-size: 0.6rem; color: var(--gold); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-  .event-desc { font-size: 0.6rem; color: var(--text-dim); line-height: 1.5; letter-spacing: 0.02em; }
-  .event-reward { font-size: 0.57rem; color: var(--gold-light); background: rgba(201,168,76,0.07); border: 1px solid rgba(201,168,76,0.2); padding: 1px 7px; align-self: flex-start; letter-spacing: 0.08em; margin-top: 2px; }
-  .events-grid { display: flex; flex-direction: column; gap: 2px; }
 
   /* LAYOUT B — Full-width Hero Cycles + generous spacing */
   .cycles-strip { grid-template-columns: repeat(5,1fr); gap: 12px; }
@@ -491,10 +493,10 @@
 
       </div>
 
-      <!-- EVENTS -->
-      <div class="section events-col" id="eventsSection" style="display:none">
-        <div class="section-title">✦ Events <div class="section-title-line"></div></div>
-        <div class="events-grid" id="eventsList"></div>
+      <!-- EVENTS & ALERTS — unified -->
+      <div class="section" id="alertsEventsCol" style="display:none;">
+        <div class="section-title">✦ Events & Alerts <div class="section-title-line"></div></div>
+        <div class="unified-box" id="alertsEventsList"></div>
       </div>
 
     </div>
@@ -519,14 +521,6 @@
           <button class="ftab" onclick="setFTab('railjack',this)">Railjack</button>
         </div>
         <div class="item-list" id="fissureList">
-          <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
-        </div>
-      </div>
-
-      <!-- ALERTS -->
-      <div class="section">
-        <div class="section-title">✦ Alerts <div class="section-title-line"></div></div>
-        <div class="item-list" id="alertList">
           <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
         </div>
       </div>
@@ -635,38 +629,75 @@ function toggleNews() {
   renderNews();
 }
 
-// ── EVENTS ──
-function renderEvents() {
-  const section = document.getElementById('eventsSection');
-  const el = document.getElementById('eventsList');
+// ── EVENTS & ALERTS — unified ──
+function renderAlertsEvents() {
+  const el = document.getElementById('alertsEventsList');
+  const col = document.getElementById('alertsEventsCol');
   const row = document.querySelector('.news-events-row');
-  if (!el || !wsData.events) return;
-  const active = wsData.events.filter(e => !e.expired);
-  if (!active.length) {
-    section.style.display = 'none';
-    if (row) row.classList.remove('has-events');
-    return;
+  if (!el) return;
+  let html = '';
+
+  // Events block
+  const activeEvents = (wsData.events || []).filter(e => !e.expired);
+  if (activeEvents.length) {
+    html += `<div class="unified-sub-label">Events</div>`;
+    html += activeEvents.map(e => {
+      const ms = e.expiry ? expMs(e.expiry) : 0;
+      return `<div class="u-event-row">
+        <div class="u-event-name">${e.description || e.name || 'Event'}</div>
+        ${e.expiry
+          ? `<span class="row-timer" data-expiry="${e.expiry}">${fmt(Math.max(0,ms))}</span>`
+          : `<span class="u-event-badge">Active</span>`}
+      </div>`;
+    }).join('');
   }
-  section.style.display = 'block';
-  if (row) row.classList.add('has-events');
-  el.innerHTML = active.map(e => {
-    const ms = e.expiry ? expMs(e.expiry) : 0;
-    const reward = e.rewards?.[0]?.itemString || e.rewardTypes?.[0] || '';
-    return `<div class="event-card">
-      <div class="event-top">
-        <div class="event-name">${e.description || e.name || 'Event'}</div>
-        ${e.expiry ? `<div class="event-timer" data-expiry="${e.expiry}">${fmt(Math.max(0,ms))}</div>` : ''}
-      </div>
-      ${e.tooltip ? `<div class="event-desc">${e.tooltip}</div>` : ''}
-      ${reward ? `<div class="event-reward">${reward}</div>` : ''}
-    </div>`;
-  }).join('');
+
+  // Alerts block
+  html += `<div class="unified-sub-label">Alerts</div>`;
+  const activeAlerts = (wsData.alerts || []).filter(a => !a.expired);
+  if (!activeAlerts.length) {
+    html += `<div class="empty-msg">No active alerts.</div>`;
+  } else {
+    html += activeAlerts.map(a => {
+      const m = a.mission || {}, ms = expMs(a.expiry);
+      const fc = (m.faction || '').toLowerCase();
+      const fcc = fc.includes('corpus') ? 'fc-corpus' : fc.includes('grineer') ? 'fc-grineer' : fc.includes('infested') ? 'fc-infested' : 'fc-orokin';
+      const r = m.reward; let reward = null;
+      if (r) { if (r.asString) reward = r.asString; else { const p = []; if (r.items?.length) p.push(...r.items); if (r.countedItems?.length) p.push(...r.countedItems.map(i => `${i.count}× ${i.type}`)); if (r.credits) p.push(`${r.credits.toLocaleString()} ¢`); reward = p.join(', ') || null; } }
+      return `<div class="u-alert-row">
+        <div class="u-alert-top">
+          <span class="u-alert-mission">${m.type || '—'}</span>
+          ${m.faction ? `<span class="faction-tag ${fcc}">${m.faction}</span>` : ''}
+          <span class="row-timer" data-expiry="${a.expiry}">${fmt(Math.max(0,ms))}</span>
+        </div>
+        <div class="row-sub">${m.node || '—'}</div>
+        ${reward ? `<div class="u-alert-reward">✦ ${reward}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  el.innerHTML = html;
+
+  // Show column and expand row to 2 cols if we have anything
+  const hasContent = activeEvents.length || activeAlerts.length;
+  if (col) col.style.display = hasContent ? 'block' : 'none';
+  if (row) row.classList.toggle('has-events', hasContent);
 }
 
 function openMenu()  { document.getElementById('sideMenu').classList.add('open');    document.getElementById('menuOverlay').classList.add('open'); }
 function closeMenu() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+function positionBackToTop() {
+  const btn = document.getElementById('backToTop');
+  const wrap = document.querySelector('.page-wrap');
+  if (!btn || !wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  const rightOffset = window.innerWidth - rect.right;
+  btn.style.right = Math.max(12, rightOffset) + 'px';
+}
 window.addEventListener('scroll', () => { document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 300); });
+window.addEventListener('resize', positionBackToTop);
+document.addEventListener('DOMContentLoaded', positionBackToTop);
 
 function fmt(ms) {
   if (ms <= 0) return '—';
@@ -766,29 +797,6 @@ function renderFissures() {
   </div>`).join('');
 }
 
-function renderAlerts() {
-  const el = document.getElementById('alertList');
-  if (!wsData.alerts) { el.innerHTML=`<div class="empty-msg">No data.</div>`; return; }
-  const items = (wsData.alerts||[]).filter(a=>!a.expired);
-  if (!items.length) { el.innerHTML=`<div class="empty-msg">No active alerts.</div>`; return; }
-  el.innerHTML = items.map(a=>{
-    const m=a.mission||{}, ms=expMs(a.expiry);
-    const fc=(m.faction||'').toLowerCase();
-    const fcc=fc.includes('corpus')?'fc-corpus':fc.includes('grineer')?'fc-grineer':fc.includes('infested')?'fc-infested':'fc-orokin';
-    const r=m.reward; let reward=null;
-    if(r){ if(r.asString) reward=r.asString; else { const p=[]; if(r.items?.length)p.push(...r.items); if(r.countedItems?.length)p.push(...r.countedItems.map(i=>`${i.count}× ${i.type}`)); if(r.credits)p.push(`${r.credits.toLocaleString()} ¢`); reward=p.join(', ')||null; } }
-    return `<div class="alert-row">
-      <div class="alert-top">
-        <span class="alert-mission">${m.type||'—'}</span>
-        ${m.faction?`<span class="faction-tag ${fcc}">${m.faction}</span>`:''}
-        <span class="row-timer" data-expiry="${a.expiry}">${fmt(Math.max(0,ms))}</span>
-      </div>
-      <div class="row-sub">${m.node||'—'}</div>
-      ${reward?`<div class="alert-reward">✦ ${reward}</div>`:''}
-    </div>`;
-  }).join('');
-}
-
 function renderEndgame() {
   const grid = document.getElementById('endgameGrid'); const cards=[];
   if (wsData.sortie&&!wsData.sortie.expired) {
@@ -810,7 +818,7 @@ function renderEndgame() {
   grid.innerHTML = cards.length ? cards.join('') : `<div class="empty-msg">No endgame data.</div>`;
 }
 
-function renderAll() { renderCycles(); renderFissures(); renderAlerts(); renderEndgame(); renderEvents(); }
+function renderAll() { renderCycles(); renderFissures(); renderAlertsEvents(); renderEndgame(); }
 
 let refetchPending = false;
 function tick() {
