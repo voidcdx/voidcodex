@@ -194,11 +194,78 @@
   .mission-node { font-size: 0.57rem; color: var(--text-dim); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .mission-mod  { font-size: 0.53rem; color: var(--gold-dim); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .loading-state { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 24px; }
-  .loading-spinner { width: 24px; height: 24px; border: 2px solid rgba(201,168,76,0.1); border-top-color: var(--gold); border-right-color: var(--gold-dim); animation: spin 1.2s linear infinite; flex-shrink: 0; }
-  @keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
-  .loading-text { font-size: 0.58rem; letter-spacing: 0.2em; color: var(--text-dim); animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes spin  { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
   @keyframes pulse { 0%,100%{opacity:0.4}50%{opacity:1} }
+  @keyframes shimmer {
+    0%   { background-position: -300% 0; }
+    100% { background-position:  300% 0; }
+  }
+
+  /* ── PAGE LOADER OVERLAY ── */
+  #pageLoader {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    pointer-events: none;
+  }
+  #pageLoader.hidden { display: none; }
+  .page-loader-ring {
+    width: 30px; height: 30px;
+    border: 1.5px solid rgba(201,168,76,0.08);
+    border-top-color: var(--gold);
+    border-right-color: var(--gold-dim);
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+  }
+  .page-loader-text {
+    font-size: 0.58rem; letter-spacing: 0.24em; color: var(--text-dim);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .page-loader-sub {
+    font-size: 0.46rem; letter-spacing: 0.14em; color: var(--text-dim);
+    opacity: 0.35; margin-top: -6px;
+  }
+
+  /* ── GHOST CONTENT (blurred placeholders) ── */
+  #pageContent {
+    transition: filter 0.3s ease, opacity 0.3s ease;
+  }
+  #pageContent.loading {
+    filter: blur(2px);
+    opacity: 0.2;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ── SKELETON BARS ── */
+  .skel {
+    border-radius: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(201,168,76,0.05) 0%,
+      rgba(201,168,76,0.05) 30%,
+      rgba(201,168,76,0.12) 50%,
+      rgba(201,168,76,0.05) 70%,
+      rgba(201,168,76,0.05) 100%
+    );
+    background-size: 300% 100%;
+    animation: shimmer 2.4s ease-in-out infinite;
+  }
+  .skel-row { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-bottom: 1px solid rgba(201,168,76,0.05); }
+  .skel-row:last-child { border-bottom: none; }
+  .skel-row-sm { display: flex; flex-direction: column; gap: 5px; padding: 8px 12px; border-bottom: 1px solid rgba(201,168,76,0.05); }
+  .skel-row-sm:last-child { border-bottom: none; }
+  .skel-horiz { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .sh8  { height: 8px; }  .sh10 { height: 10px; } .sh12 { height: 12px; } .sh2 { height: 2px; }
+  .sw90 { width: 90%; }   .sw75 { width: 75%; }   .sw60 { width: 60%; }
+  .sw45 { width: 45%; }   .sw35 { width: 35%; }   .sw25 { width: 25%; }  .swf { width: 100%; }
+
+  .empty-msg { font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.12em; text-align: center; padding: 14px; opacity: 0.6; }
   .empty-msg { font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.12em; text-align: center; padding: 14px; opacity: 0.6; }
 
   footer {
@@ -462,7 +529,17 @@
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">▲</button>
 
 <div class="page">
-  <div class="page-wrap">
+  <div class="page-wrap" style="position:relative;">
+
+    <!-- PAGE LOADER OVERLAY -->
+    <div id="pageLoader">
+      <div class="page-loader-ring"></div>
+      <div class="page-loader-text">ACCESSING OROKIN DATABASE…</div>
+      <div class="page-loader-sub">Retrieving world state</div>
+    </div>
+
+    <!-- ALL PAGE CONTENT (blurred while loading) -->
+    <div id="pageContent" class="loading">
 
     <div class="page-header">
       <div class="header-left">
@@ -486,11 +563,12 @@
         <div class="section-title">✦ Warframe News <div class="section-title-line"></div></div>
         <div class="news-list-wrap collapsed" id="newsListWrap">
           <div class="news-list" id="newsList">
-            <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
+            <div class="skel-row"><div class="skel sh10 sw90"></div><div class="skel sh8 sw45"></div></div>
+            <div class="skel-row"><div class="skel sh10 sw75"></div><div class="skel sh8 sw35"></div></div>
+            <div class="skel-row"><div class="skel sh10 sw60"></div><div class="skel sh8 sw45"></div></div>
           </div>
         </div>
         <button class="news-toggle-btn" id="newsToggleBtn" style="display:none" onclick="toggleNews()">▼</button>
-
       </div>
 
       <!-- EVENTS & ALERTS — unified -->
@@ -505,7 +583,11 @@
     <div class="section">
       <div class="section-title">✦ World Cycles <div class="section-title-line"></div></div>
       <div class="cycles-strip" id="cyclesGrid">
-        <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
+        <div class="cycle-card"><div class="skel sh8 sw60" style="margin-bottom:8px;"></div><div class="skel sh12 sw75"></div><div class="skel sh2 swf" style="margin-top:8px;"></div></div>
+        <div class="cycle-card"><div class="skel sh8 sw45" style="margin-bottom:8px;"></div><div class="skel sh12 sw60"></div><div class="skel sh2 swf" style="margin-top:8px;"></div></div>
+        <div class="cycle-card"><div class="skel sh8 sw75" style="margin-bottom:8px;"></div><div class="skel sh12 sw45"></div><div class="skel sh2 swf" style="margin-top:8px;"></div></div>
+        <div class="cycle-card"><div class="skel sh8 sw60" style="margin-bottom:8px;"></div><div class="skel sh12 sw90"></div><div class="skel sh2 swf" style="margin-top:8px;"></div></div>
+        <div class="cycle-card"><div class="skel sh8 sw35" style="margin-bottom:8px;"></div><div class="skel sh12 sw60"></div><div class="skel sh2 swf" style="margin-top:8px;"></div></div>
       </div>
     </div>
 
@@ -521,7 +603,10 @@
           <button class="ftab" onclick="setFTab('railjack',this)">Railjack</button>
         </div>
         <div class="item-list" id="fissureList">
-          <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
+          <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw35"></div></div><div class="skel sh10 sw75"></div><div class="skel sh8 sw45"></div></div>
+          <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw35"></div></div><div class="skel sh10 sw60"></div><div class="skel sh8 sw45"></div></div>
+          <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw35"></div></div><div class="skel sh10 sw90"></div><div class="skel sh8 sw35"></div></div>
+          <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw35"></div></div><div class="skel sh10 sw75"></div><div class="skel sh8 sw45"></div></div>
         </div>
       </div>
 
@@ -529,11 +614,22 @@
       <div class="section">
         <div class="section-title">✦ Endgame <div class="section-title-line"></div></div>
         <div id="endgameGrid">
-          <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
+          <div class="endgame-card">
+            <div class="skel-row"><div class="skel sh12 sw60"></div><div class="skel sh8 sw45"></div></div>
+            <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw45"></div></div></div>
+            <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw60"></div></div></div>
+            <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw35"></div></div></div>
+          </div>
+          <div class="endgame-card">
+            <div class="skel-row"><div class="skel sh12 sw75"></div><div class="skel sh8 sw35"></div></div>
+            <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw60"></div></div></div>
+            <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw45"></div></div></div>
+          </div>
         </div>
       </div>
     </div>
 
+    </div><!-- /#pageContent -->
   </div>
 </div>
 
@@ -728,8 +824,15 @@ async function fetchWS() {
   results.forEach((r, i) => {
     if (r.status === 'fulfilled') { wsData[endpoints[i][0]] = r.value; anySuccess = true; }
   });
-  if (!anySuccess) { document.getElementById('refreshLabel').textContent = '⚠ Failed to load data'; return; }
+  if (!anySuccess) {
+    document.getElementById('refreshLabel').textContent = '⚠ Failed to load data';
+    document.getElementById('pageLoader').classList.add('hidden');
+    document.getElementById('pageContent').classList.remove('loading');
+    return;
+  }
   renderAll();
+  document.getElementById('pageLoader').classList.add('hidden');
+  document.getElementById('pageContent').classList.remove('loading');
   document.getElementById('refreshLabel').textContent = 'Live · ' + new Date().toLocaleTimeString();
 }
 
