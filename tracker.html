@@ -924,10 +924,20 @@ function closeMenu() {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 
 // ── Back to top ──
+function positionBackToTop() {
+  const btn = document.getElementById('backToTop');
+  const wrap = document.querySelector('.page-wrap');
+  if (!btn || !wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  const rightOffset = window.innerWidth - rect.right;
+  btn.style.right = Math.max(12, rightOffset) + 'px';
+}
 window.addEventListener('scroll', () => {
   const btn = document.getElementById('backToTop');
   if (btn) btn.classList.toggle('visible', window.scrollY > 300);
 });
+window.addEventListener('resize', positionBackToTop);
+document.addEventListener('DOMContentLoaded', positionBackToTop);
 
 </script>
 <div class="relic-overlay" id="relicOverlay" onclick="handleRelicOverlayClick(event)">
