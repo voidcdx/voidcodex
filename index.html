@@ -326,7 +326,7 @@ function expMs(iso) { return new Date(iso).getTime() - Date.now(); }
 
 async function fetchNews() {
   try {
-    const res = await fetch('https://api.warframestat.us/pc/news');
+    const res = await fetch('https://corsproxy.io/?url=https://api.warframestat.us/pc/news');
     if (!res.ok) throw new Error();
     allNews = await res.json();
     allNews.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -385,17 +385,18 @@ function renderEvents() {
 }
 
 async function fetchWS() {
+  const PROXY = 'https://corsproxy.io/?url=';
   const endpoints = [
-    ['cetusCycle',   'https://api.warframestat.us/pc/cetusCycle'],
-    ['vallisCycle',  'https://api.warframestat.us/pc/vallisCycle'],
-    ['cambionCycle', 'https://api.warframestat.us/pc/cambionCycle'],
-    ['zarimanCycle', 'https://api.warframestat.us/pc/zarimanCycle'],
-    ['duviriCycle',  'https://api.warframestat.us/pc/duviriCycle'],
-    ['events',       'https://api.warframestat.us/pc/events'],
-    ['fissures',     'https://api.warframestat.us/pc/fissures'],
-    ['alerts',       'https://api.warframestat.us/pc/alerts'],
-    ['sortie',       'https://api.warframestat.us/pc/sortie'],
-    ['archonHunt',   'https://api.warframestat.us/pc/archonHunt'],
+    ['cetusCycle',   PROXY + 'https://api.warframestat.us/pc/cetusCycle'],
+    ['vallisCycle',  PROXY + 'https://api.warframestat.us/pc/vallisCycle'],
+    ['cambionCycle', PROXY + 'https://api.warframestat.us/pc/cambionCycle'],
+    ['zarimanCycle', PROXY + 'https://api.warframestat.us/pc/zarimanCycle'],
+    ['duviriCycle',  PROXY + 'https://api.warframestat.us/pc/duviriCycle'],
+    ['events',       PROXY + 'https://api.warframestat.us/pc/events'],
+    ['fissures',     PROXY + 'https://api.warframestat.us/pc/fissures'],
+    ['alerts',       PROXY + 'https://api.warframestat.us/pc/alerts'],
+    ['sortie',       PROXY + 'https://api.warframestat.us/pc/sortie'],
+    ['archonHunt',   PROXY + 'https://api.warframestat.us/pc/archonHunt'],
   ];
   const results = await Promise.allSettled(
     endpoints.map(([, url]) => fetch(url).then(r => { if (!r.ok) throw new Error(); return r.json(); }))
