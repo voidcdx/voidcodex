@@ -126,7 +126,15 @@
   @media (max-width: 600px) { .news-events-row { margin-bottom: 10px; } }
 
   .news-list { display: flex; flex-direction: column; }
-  .news-list-wrap { position: relative; }
+  .news-list-wrap {
+    overflow: hidden;
+    max-height: 210px;
+    transition: max-height 0.4s ease;
+  }
+  .news-list-wrap.expanded {
+    max-height: 1200px;
+    transition: max-height 0.5s ease;
+  }
   .news-item { display: flex; align-items: flex-start; gap: 12px; background: transparent; border: none; padding: 9px 10px; text-decoration: none; position: relative; overflow: hidden; transition: none; }
   .news-item::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 100% at 50% 50%, rgba(201,168,76,0.07) 0%, transparent 70%); opacity: 0; transition: opacity 0.35s ease; pointer-events: none; }
   .news-item:hover::after { opacity: 1; }
@@ -186,8 +194,7 @@
       <div class="header-left">
         <div class="header-diamond"></div>
         <div>
-          <div class="page-title">World State</div>
-          <div class="page-sub">Live Data</div>
+          <div class="page-title">World Status</div>
         </div>
       </div>
       <div class="refresh-bar">
@@ -199,7 +206,7 @@
     <div class="news-events-row">
       <div class="section news-col" id="newsSection">
         <div class="section-title">✦ Warframe News <div class="section-title-line"></div></div>
-        <div class="news-list-wrap collapsed" id="newsListWrap">
+        <div class="news-list-wrap" id="newsListWrap">
           <div class="news-list" id="newsList">
             <div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">LOADING…</div></div>
           </div>
@@ -288,7 +295,22 @@ function closeLegal(type) { document.getElementById(type + 'Overlay').classList.
 function openMenu()  { document.getElementById('sideMenu').classList.add('open');    document.getElementById('menuOverlay').classList.add('open'); }
 function closeMenu() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
-window.addEventListener('scroll', () => { document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 300); });
+
+let _lastScrollY = 0;
+window.addEventListener('scroll', () => {
+  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 300);
+
+  // Collapse expanded news when scrolling down past it
+  const delta = window.scrollY - _lastScrollY;
+  if (delta > 0 && newsExpanded) {
+    const section = document.getElementById('newsSection');
+    if (section && section.getBoundingClientRect().top < 0) {
+      newsExpanded = false;
+      renderNews();
+    }
+  }
+  _lastScrollY = window.scrollY;
+});
 
 let wsData = {}, fTab = 'basic';
 let allNews = [], newsExpanded = false;
@@ -333,7 +355,7 @@ function renderNews() {
       </div>
     </a>`;
   }).join('');
-  if (wrap) wrap.classList.toggle('collapsed', !newsExpanded);
+  if (wrap) wrap.classList.toggle('expanded', newsExpanded);
   if (btn) { btn.style.display = allNews.length > 3 ? 'block' : 'none'; btn.textContent = newsExpanded ? '▲' : '▼'; }
 }
 
