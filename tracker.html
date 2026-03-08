@@ -320,7 +320,7 @@ function saveProgress() {
 // ── Fetch ──
 async function fetchFile(filename, label) {
   try {
-    const res = await fetch(WFCD_BASE + filename, { cache: 'default' });
+    const res = await fetch(WFCD_BASE + filename, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
     return data

@@ -44,6 +44,17 @@ body {
   min-height: 100vh;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(40,20,80,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 40% at 50% 50%, rgba(201,168,76,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 /* ── TOPBAR ── */
 .topbar {
   position: fixed;
