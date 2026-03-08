@@ -14,7 +14,7 @@
     --text: #d4c9a8; --text-dim: #8a7f65; --text-bright: #f0e6c0;
     --complete: #2ecc71; --menu-width: 280px;
   }
-  html { font-size: 115%; }
+  html { font-size: 115%; overflow-y: scroll; }
   html, body { height: 100%; background: #07060d; color: var(--text); font-family: 'Share Tech Mono', monospace; overflow-x: hidden; }
   body { display: flex; flex-direction: column; min-height: 100vh; }
 
@@ -44,13 +44,13 @@
   .hamburger:hover { color: var(--gold-light); }
   .hamburger span { display: block; width: 20px; height: 1.5px; background: currentColor; }
 
-  .back-to-top { position: fixed; bottom: 28px; right: 20px; width: 40px; height: 40px; background: var(--bg-mid); border: 1px solid rgba(201,168,76,0.3); color: var(--gold); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 700; opacity: 0; pointer-events: none; transition: opacity 0.3s; clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%); }
+  .back-to-top { position: fixed; bottom: 28px; right: 20px; width: 40px; height: 40px; background: var(--bg-mid); border: 1px solid rgba(201,168,76,0.3); color: var(--gold); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 700; opacity: 0; pointer-events: none; transition: opacity 0.3s, border-color 0.2s, box-shadow 0.2s; border-radius: 50%; }
   .back-to-top.visible { opacity: 1; pointer-events: all; }
+  .back-to-top:hover { border-color: var(--gold); box-shadow: 0 0 16px rgba(201,168,76,0.3); }
 
   /* PAGE */
   .page { position: relative; z-index: 1; padding-top: 46px; display: flex; flex-direction: column; flex: 1; }
-  .page-wrap { flex: 1; }
-  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 20px 20px 64px; }
+  .page-wrap { max-width: 1400px; width: 100%; margin: 0 auto; padding: 24px 32px 64px; flex: 1; }
 
   /* COMPACT HEADER */
   .page-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
@@ -364,7 +364,6 @@
   .events-grid { display: flex; flex-direction: column; gap: 2px; }
 
   /* LAYOUT B — Full-width Hero Cycles + generous spacing */
-  .page-wrap { max-width: 1400px; width: 100%; padding: 24px 32px 64px; }
   .cycles-strip { grid-template-columns: repeat(5,1fr); gap: 12px; }
   .cycle-card { padding: 14px 16px; gap: 8px; }
   .cycle-name { font-size: 0.75rem; }
@@ -457,7 +456,7 @@
     <button class="hamburger" onclick="openMenu()"><span></span><span></span><span></span></button>
   </div>
 </div>
-<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">▲</button>
 
 <div class="page">
   <div class="page-wrap">
