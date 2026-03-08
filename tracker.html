@@ -164,7 +164,7 @@
   /* LOADING / EMPTY */
   @keyframes spin   { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
   @keyframes pulse  { 0%,100%{opacity:0.4} 50%{opacity:1} }
-  .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 32px; gap: 14px; }
+  .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; gap: 14px; }
   .loading-ring { width: 30px; height: 30px; border: 1.5px solid rgba(201,168,76,0.08); border-top-color: var(--gold); border-right-color: var(--gold-dim); border-radius: 50%; animation: spin 1.2s linear infinite; }
   .loading-text { font-family: 'Share Tech Mono', monospace; font-size: 0.67rem; letter-spacing: 0.24em; color: var(--text-dim); animation: pulse 1.6s ease-in-out infinite; }
   .loading-sub  { font-family: 'Share Tech Mono', monospace; font-size: 0.51rem; letter-spacing: 0.14em; color: var(--text-dim); opacity: 0.35; margin-top: -6px; }
