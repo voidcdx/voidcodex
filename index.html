@@ -842,7 +842,9 @@ function fmt(ms) {
 }
 function expMs(iso) { return new Date(iso).getTime() - Date.now(); }
 
-async function fetchWS() {
+const CRITICAL_ENDPOINTS = ['cetusCycle', 'fissures', 'sortie', 'archonHunt'];
+
+async function fetchWS(retryCount = 0) {
   const endpoints = [
     ['cetusCycle',   'https://api.warframestat.us/pc/cetusCycle'],
     ['vallisCycle',  'https://api.warframestat.us/pc/vallisCycle'],
@@ -863,12 +865,27 @@ async function fetchWS() {
   results.forEach((r, i) => {
     if (r.status === 'fulfilled') { wsData[endpoints[i][0]] = r.value; anySuccess = true; }
   });
+
+  // Check if all critical endpoints succeeded
+  const criticalOk = CRITICAL_ENDPOINTS.every(key => wsData[key]);
+
   if (!anySuccess) {
+    // Total failure — show error and reveal page
     document.getElementById('refreshLabel').textContent = '⚠ Failed to load data';
     document.getElementById('pageLoader').classList.add('hidden');
     document.getElementById('pageContent').classList.remove('loading');
     return;
   }
+
+  if (!criticalOk && retryCount < 3) {
+    // Partial failure — retry with increasing delay, keep loader visible
+    const delay = 800 * (retryCount + 1);
+    document.getElementById('refreshLabel').textContent = '⟳ Retrying…';
+    await new Promise(r => setTimeout(r, delay));
+    return fetchWS(retryCount + 1);
+  }
+
+  // All critical endpoints ok (or max retries hit) — render and reveal
   renderAll();
   document.getElementById('pageLoader').classList.add('hidden');
   document.getElementById('pageContent').classList.remove('loading');
