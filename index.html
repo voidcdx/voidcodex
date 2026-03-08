@@ -114,8 +114,8 @@
 
   /* MAIN GRID — 3 col: fissures | alerts | endgame */
   .main-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; }
-  @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 600px) { .main-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 768px)  { .main-grid { grid-template-columns: 1fr; } }
 
   /* FISSURE TABS */
   .ftabs { display: flex; gap: 3px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -178,6 +178,30 @@
   .fc-grineer  { color: #e8502a; border-color: rgba(232,80,42,0.4);   background: rgba(232,80,42,0.06); }
   .fc-infested { color: #6abf40; border-color: rgba(106,191,64,0.4);  background: rgba(106,191,64,0.06); }
   .fc-orokin   { color: var(--gold); border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.06); }
+
+  /* INVASIONS */
+  .inv-list { display: flex; flex-direction: column; gap: 5px; }
+  .inv-row { background: var(--bg-card); border: 1px solid var(--border); padding: 9px 12px; display: flex; flex-direction: column; gap: 6px; transition: border-color 0.2s; }
+  .inv-row:hover { border-color: rgba(201,168,76,0.35); }
+  .inv-factions { display: flex; align-items: center; }
+  .inv-fname { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; }
+  .inv-spacer { flex: 1; }
+  .inv-fc-grineer  { color: #e8502a; }
+  .inv-fc-corpus   { color: #4ecdc4; }
+  .inv-fc-infested { color: #6abf40; }
+  .inv-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .inv-bar { flex: 1; height: 3px; display: flex; overflow: hidden; }
+  .inv-fill-att { height: 100%; flex-shrink: 0; }
+  .inv-fill-def { height: 100%; flex: 1; opacity: 0.4; }
+  .inv-fill-grineer  { background: #e8502a; }
+  .inv-fill-corpus   { background: #4ecdc4; }
+  .inv-fill-infested { background: #6abf40; }
+  .inv-pct { font-size: 0.56rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .inv-rewards { display: flex; align-items: center; }
+  .inv-reward-tag { font-size: 0.5rem; letter-spacing: 0.08em; color: var(--gold-light); background: rgba(201,168,76,0.07); border: 1px solid rgba(201,168,76,0.2); padding: 1px 7px; white-space: nowrap; }
+  .inv-reward-none { font-size: 0.5rem; color: var(--text-dim); opacity: 0.3; }
+  .inv-location { font-size: 0.60rem; letter-spacing: 0.1em; color: var(--text); padding-top: 3px; border-top: 1px solid rgba(201,168,76,0.08); }
+  .inv-empty { font-size: 0.65rem; color: var(--text-dim); text-align: center; padding: 16px 0; letter-spacing: 0.1em; opacity: 0.5; }
 
   /* ENDGAME */
   .endgame-card { background: var(--bg-card); border: 1px solid var(--border); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; transition: border-color 0.2s; }
@@ -390,6 +414,9 @@
     .row-timer { font-size: 0.56rem; }
     .ftabs { gap: 2px; }
     .ftab { font-size: 0.5rem; padding: 4px 8px; }
+    .inv-fname { font-size: 0.6rem; }
+    .inv-reward-tag { font-size: 0.52rem; }
+    .inv-location { font-size: 0.58rem; }
     .alert-mission { font-size: 0.64rem; }
     footer { padding: 20px 14px 24px; }
     .back-to-top { right: 12px; bottom: 20px; }
@@ -611,6 +638,16 @@
         </div>
       </div>
 
+      <!-- INVASIONS -->
+      <div class="section">
+        <div class="section-title">✦ Invasions <div class="section-title-line"></div></div>
+        <div class="inv-list" id="invasionList">
+          <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw25"></div></div><div class="skel sh4 swf"></div></div>
+          <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw30"></div><div class="skel sh8 sw20"></div></div><div class="skel sh4 swf"></div></div>
+          <div class="skel-row-sm"><div class="skel-horiz"><div class="skel sh8 sw25"></div><div class="skel sh8 sw25"></div></div><div class="skel sh4 swf"></div></div>
+        </div>
+      </div>
+
       <!-- ENDGAME -->
       <div class="section">
         <div class="section-title">✦ Endgame <div class="section-title-line"></div></div>
@@ -817,6 +854,7 @@ async function fetchWS() {
     ['alerts',       'https://api.warframestat.us/pc/alerts'],
     ['sortie',       'https://api.warframestat.us/pc/sortie'],
     ['archonHunt',   'https://api.warframestat.us/pc/archonHunt'],
+    ['invasions',    'https://api.warframestat.us/pc/invasions'],
   ];
   const results = await Promise.allSettled(
     endpoints.map(([, url]) => fetch(url).then(r => { if (!r.ok) throw new Error(); return r.json(); }))
@@ -922,7 +960,70 @@ function renderEndgame() {
   grid.innerHTML = cards.length ? cards.join('') : `<div class="empty-msg">No endgame data.</div>`;
 }
 
-function renderAll() { renderCycles(); renderFissures(); renderAlertsEvents(); renderEndgame(); }
+function renderInvasions() {
+  const el = document.getElementById('invasionList');
+  if (!el) return;
+  const data = wsData.invasions;
+  if (!data || !data.length) { el.innerHTML = '<div class="inv-empty">No active invasions.</div>'; return; }
+  const active = data.filter(i => !i.completed);
+  if (!active.length) { el.innerHTML = '<div class="inv-empty">No active invasions.</div>'; return; }
+
+  const fc = f => {
+    if (!f) return 'corpus';
+    const n = f.toLowerCase();
+    if (n.includes('grineer'))  return 'grineer';
+    if (n.includes('infested')) return 'infested';
+    return 'corpus';
+  };
+
+  const colorVar = { grineer: '#e8502a', corpus: '#4ecdc4', infested: '#6abf40' };
+
+  el.innerHTML = active.map(inv => {
+    const attFac  = fc(inv.attacker && inv.attacker.faction || inv.attackingFaction);
+    const defFac  = fc(inv.defender && inv.defender.faction || inv.defendingFaction);
+    const attName = (inv.attacker && inv.attacker.faction) || inv.attackingFaction || 'Unknown';
+    const defName = (inv.defender && inv.defender.faction) || inv.defendingFaction || 'Unknown';
+    const attPct  = Math.round(Math.max(0, Math.min(100, inv.completion || 0)));
+    const defPct  = 100 - attPct;
+    const getReward = r => {
+      if (!r) return null;
+      if (r.countedItems && r.countedItems.length) return r.countedItems.map(i => i.type || i.key).filter(Boolean).join(', ');
+      if (r.items && r.items.length) return r.items.join(', ');
+      if (r.asString && r.asString.trim()) return r.asString.trim();
+      return null;
+    };
+    const attR     = getReward(inv.attacker && inv.attacker.reward) || getReward(inv.attackerReward);
+    const defR     = getReward(inv.defender && inv.defender.reward) || getReward(inv.defenderReward);
+    const node     = inv.node || '';
+    const planet   = (node.match(/\(([^)]+)\)/) || [])[1] || '';
+    const nodeName = node.replace(/\s*\([^)]*\)/, '').trim();
+    const attColor = colorVar[attFac] || '#c9a84c';
+    const defColor = colorVar[defFac] || '#c9a84c';
+
+    const attRewardHtml = attR ? '<span class="inv-reward-tag">' + attR + '</span>' : '<span class="inv-reward-none">—</span>';
+    const defRewardHtml = defR ? '<span class="inv-reward-tag">' + defR + '</span>' : '<span class="inv-reward-none">—</span>';
+
+    return '<div class="inv-row">'
+      + '<div class="inv-factions">'
+      +   '<span class="inv-fname inv-fc-' + attFac + '">' + attName + '</span>'
+      +   '<span class="inv-spacer"></span>'
+      +   '<span class="inv-fname inv-fc-' + defFac + '">' + defName + '</span>'
+      + '</div>'
+      + '<div class="inv-bar-wrap">'
+      +   '<span class="inv-pct" style="color:' + attColor + '">' + attPct + '%</span>'
+      +   '<div class="inv-bar">'
+      +     '<div class="inv-fill-att inv-fill-' + attFac + '" style="width:' + attPct + '%"></div>'
+      +     '<div class="inv-fill-def inv-fill-' + defFac + '" style="width:' + defPct + '%"></div>'
+      +   '</div>'
+      +   '<span class="inv-pct" style="color:' + defColor + '">' + defPct + '%</span>'
+      + '</div>'
+      + '<div class="inv-rewards">' + attRewardHtml + '<span class="inv-spacer"></span>' + defRewardHtml + '</div>'
+      + '<div class="inv-location">◈ ' + nodeName + (planet ? ' · ' + planet : '') + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function renderAll() { renderCycles(); renderFissures(); renderAlertsEvents(); renderInvasions(); renderEndgame(); }
 
 let refetchPending = false;
 function tick() {
