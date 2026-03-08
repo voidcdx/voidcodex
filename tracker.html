@@ -162,9 +162,12 @@
   .relic-no-data { font-size: 0.65rem; color: var(--text-dim); text-align: center; padding: 20px 0; font-style: italic; opacity: 0.6; }
 
   /* LOADING / EMPTY */
-  .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 32px; gap: 18px; }
-  .loading-spinner { width: 44px; height: 44px; border: 2px solid rgba(201,168,76,0.1); border-top-color: var(--gold); border-right-color: var(--gold-dim); animation: spin 1.2s linear infinite; }
-  .loading-text { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.25em; color: var(--text-dim); animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes spin   { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes pulse  { 0%,100%{opacity:0.4} 50%{opacity:1} }
+  .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 32px; gap: 14px; }
+  .loading-ring { width: 30px; height: 30px; border: 1.5px solid rgba(201,168,76,0.08); border-top-color: var(--gold); border-right-color: var(--gold-dim); border-radius: 50%; animation: spin 1.2s linear infinite; }
+  .loading-text { font-family: 'Share Tech Mono', monospace; font-size: 0.67rem; letter-spacing: 0.24em; color: var(--text-dim); animation: pulse 1.6s ease-in-out infinite; }
+  .loading-sub  { font-family: 'Share Tech Mono', monospace; font-size: 0.51rem; letter-spacing: 0.14em; color: var(--text-dim); opacity: 0.35; margin-top: -6px; }
   .empty-state { text-align: center; padding: 60px 32px; color: var(--text-dim); }
   .empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 10px; opacity: 0.35; }
   .empty-state p { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.18em; }
@@ -856,7 +859,7 @@ async function switchTab(tab) {
 async function loadTab(retryCount = 0) {
   const content = document.getElementById('mainContent');
   if (!content) return;
-  content.innerHTML = `<div class="loading-state"><div class="loading-spinner"></div><div class="loading-text">ACCESSING OROKIN DATABASE…</div></div>`;
+  content.innerHTML = `<div class="loading-state"><div class="loading-ring"></div><div class="loading-text">ACCESSING OROKIN DATABASE…</div><div class="loading-sub">Retrieving prime data</div></div>`;
   try {
     allItems = await fetchCategory(activeTab);
     if (!allItems || allItems.length === 0) throw new Error('Empty response');
