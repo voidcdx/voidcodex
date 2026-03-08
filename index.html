@@ -793,6 +793,7 @@ function renderEndgame() {
 
 function renderAll() { renderCycles(); renderFissures(); renderAlerts(); renderEndgame(); renderEvents(); }
 
+let refetchPending = false;
 function tick() {
   let expired = false;
   document.querySelectorAll('[data-expiry]').forEach(el => {
@@ -800,7 +801,10 @@ function tick() {
     el.textContent = fmt(Math.max(0,ms));
     if (ms <= 0) expired = true;
   });
-  if (expired) { fetchWS(); }
+  if (expired && !refetchPending) {
+    refetchPending = true;
+    setTimeout(() => { fetchWS().then(() => { refetchPending = false; }); }, 3000);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
