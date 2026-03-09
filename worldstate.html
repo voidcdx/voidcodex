@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Void Codex · World State</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold:       #c9a84c;
+    --gold-light: #e8cc7a;
+    --gold-dim:   #7a6030;
+    --gold-glow:  rgba(201,168,76,0.18);
+    --bg-deepest: #05040a;
+    --bg-deep:    #0a0910;
+    --bg-mid:     #110f1c;
+    --bg-card:    #0e0c18;
+    --text:       #d4c9a8;
+    --text-dim:   #8a7f65;
+    --text-bright:#f0e6c0;
+    --border:     rgba(201,168,76,0.15);
+    --border-mid: rgba(201,168,76,0.25);
+    --complete:   #2ecc71;
+    --menu-width: 280px;
+  }
+
+  html {
+    font-size: 115%;
+    overflow-y: scroll;
+  }
+
+  body {
+    background: var(--bg-deepest);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 30%, rgba(40,20,80,0.45) 0%, transparent 65%),
+      radial-gradient(ellipse 90% 60% at 50% 30%, rgba(201,168,76,0.04) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ══════════════════════════════
+     MENU
+  ══════════════════════════════ */
+  .menu-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0);
+    z-index: 900; pointer-events: none;
+    transition: background 0.3s ease;
+  }
+  .menu-overlay.open { background: rgba(0,0,0,0.6); pointer-events: all; }
+
+  .side-menu {
+    position: fixed; top: 0; right: 0;
+    width: var(--menu-width); height: 100%;
+    background: var(--bg-mid);
+    border-left: 1px solid var(--border);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .side-menu.open {
+    transform: translateX(0);
+    box-shadow: -4px 0 40px rgba(0,0,0,0.6), -4px 0 20px rgba(201,168,76,0.05);
+  }
+
+  .menu-header {
+    padding: 32px 24px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 6px;
+    position: relative;
+  }
+  .menu-site-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.1rem; color: var(--gold-light);
+    text-shadow: 0 0 20px rgba(201,168,76,0.4);
+    letter-spacing: 0.08em;
+  }
+  .menu-tagline {
+    font-size: 0.55rem; color: var(--text-dim);
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .menu-close {
+    position: absolute; top: 18px; right: 16px;
+    background: none; border: none;
+    color: var(--text-dim); font-size: 1.1rem;
+    cursor: pointer; padding: 6px; line-height: 1;
+    transition: color 0.2s;
+  }
+  .menu-close:hover { color: var(--gold-light); }
+
+  .menu-nav { flex: 1; padding: 12px 0; display: flex; flex-direction: column; }
+  .menu-nav a {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 24px;
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-dim); text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .menu-nav a:hover { color: var(--gold-light); background: rgba(201,168,76,0.05); border-left-color: var(--gold); }
+  .menu-nav a.active { color: var(--gold-light); background: rgba(201,168,76,0.08); border-left-color: var(--gold); }
+  .menu-nav a .nav-icon { font-size: 0.9rem; width: 18px; text-align: center; opacity: 0.8; }
+  .menu-footer {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    font-size: 0.52rem; color: var(--text-dim); letter-spacing: 0.1em; opacity: 0.5;
+  }
+
+  /* ══════════════════════════════
+     TOPBAR
+  ══════════════════════════════ */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 50px;
+    background: rgba(5,4,10,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; z-index: 800;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .topbar-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.95rem; color: var(--gold-light);
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 20px rgba(201,168,76,0.35);
+    text-decoration: none;
+  }
+  .topbar-sep { color: var(--gold-dim); font-size: 0.6rem; }
+  .topbar-page {
+    font-size: 0.6rem; color: var(--text-dim);
+    letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .hamburger {
+    background: none; border: none;
+    color: var(--text-dim); cursor: pointer;
+    display: flex; flex-direction: column; gap: 5px;
+    padding: 6px; transition: color 0.2s; flex-shrink: 0;
+  }
+  .hamburger:hover { color: var(--gold-light); }
+  .hamburger span { display: block; width: 20px; height: 1.5px; background: currentColor; }
+
+  /* ── BACK TO TOP ── */
+  .back-to-top {
+    position: fixed; bottom: 28px; right: 20px;
+    width: 40px; height: 40px;
+    background: var(--bg-mid);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold); font-size: 1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    z-index: 700; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, border-color 0.2s, box-shadow 0.2s;
+    clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%);
+  }
+  .back-to-top.visible { opacity: 1; pointer-events: all; }
+  .back-to-top:hover { border-color: var(--gold); box-shadow: 0 0 16px rgba(201,168,76,0.3); }
+
+  /* ══════════════════════════════
+     PAGE LAYOUT
+  ══════════════════════════════ */
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 1400px; margin: 0 auto;
+    padding: 70px 24px 60px;
+  }
+
+  /* Page header */
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px; gap: 12px; flex-wrap: wrap;
+  }
+  .page-header-left { display: flex; flex-direction: column; gap: 4px; }
+  .page-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: var(--gold-light);
+    text-shadow: 0 0 30px rgba(201,168,76,0.4);
+    letter-spacing: 0.1em;
+  }
+  .page-subtitle {
+    font-size: 0.6rem; color: var(--text-dim);
+    letter-spacing: 0.22em; text-transform: uppercase;
+  }
+  .refresh-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.16em;
+    padding: 8px 18px;
+    background: transparent;
+    border: 1px solid var(--border-mid);
+    color: var(--text-dim); cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Status bar */
+  .status-bar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--complete);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(46,204,113,0.7);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  .status-dot.error { background: #e74c3c; box-shadow: 0 0 6px rgba(231,76,60,0.7); animation: none; }
+  .status-dot.loading { background: var(--gold); box-shadow: 0 0 6px rgba(201,168,76,0.7); }
+  @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .status-text { font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.14em; }
+  .status-time { font-size: 0.58rem; color: var(--gold-dim); letter-spacing: 0.1em; margin-left: auto; }
+
+  /* Cooldown message */
+  .cooldown-msg {
+    display: none;
+    font-size: 0.62rem; color: #e8a84c;
+    letter-spacing: 0.14em;
+    padding: 7px 14px;
+    border: 1px solid rgba(232,168,76,0.3);
+    background: rgba(232,168,76,0.05);
+    margin-bottom: 14px;
+  }
+  .cooldown-msg.visible { display: block; }
+
+  /* ══════════════════════════════
+     SECTION LABELS
+  ══════════════════════════════ */
+  .section-label {
+    font-size: 0.58rem; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--gold-dim);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(201,168,76,0.2), transparent);
+  }
+
+  /* ══════════════════════════════
+     CYCLES STRIP
+  ══════════════════════════════ */
+  .cycles-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .cycle-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .cycle-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .cycle-card.day::before   { background: linear-gradient(90deg, transparent, rgba(255,200,80,0.6), transparent); opacity: 1; }
+  .cycle-card.night::before { background: linear-gradient(90deg, transparent, rgba(100,120,255,0.5), transparent); opacity: 1; }
+  .cycle-card.warm::before  { background: linear-gradient(90deg, transparent, rgba(255,120,60,0.5), transparent); opacity: 1; }
+  .cycle-card.cold::before  { background: linear-gradient(90deg, transparent, rgba(80,180,255,0.5), transparent); opacity: 1; }
+  .cycle-card.fass::before  { background: linear-gradient(90deg, transparent, rgba(255,80,80,0.4), transparent); opacity: 1; }
+  .cycle-card.vome::before  { background: linear-gradient(90deg, transparent, rgba(120,80,255,0.4), transparent); opacity: 1; }
+  .cycle-card.grineer::before { background: linear-gradient(90deg, transparent, rgba(232,80,42,0.4), transparent); opacity: 1; }
+  .cycle-card.corpus::before  { background: linear-gradient(90deg, transparent, rgba(78,205,196,0.4), transparent); opacity: 1; }
+
+  .cycle-location {
+    font-size: 0.52rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  .cycle-state {
+    font-size: 0.9rem; color: var(--gold-light);
+    letter-spacing: 0.06em; font-weight: 600;
+    line-height: 1.2;
+  }
+  .cycle-state.day    { color: #f5c842; }
+  .cycle-state.night  { color: #8899ff; }
+  .cycle-state.warm   { color: #ff8c42; }
+  .cycle-state.cold   { color: #42c8ff; }
+  .cycle-state.fass   { color: #ff6666; }
+  .cycle-state.vome   { color: #9966ff; }
+  .cycle-state.grineer { color: #e8502a; }
+  .cycle-state.corpus  { color: #4ecdc4; }
+  .cycle-timer {
+    font-size: 0.68rem; color: var(--gold);
+    letter-spacing: 0.1em; font-variant-numeric: tabular-nums;
+  }
+
+  /* ══════════════════════════════
+     MAIN GRID
+  ══════════════════════════════ */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  .section-header {
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-title {
+    font-size: 0.62rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold);
+  }
+  .section-count {
+    font-size: 0.56rem; color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+  .section-body { padding: 10px 12px 14px; }
+
+  /* ── FISSURES ── */
+  .fissure-tabs {
+    display: flex; gap: 3px;
+    padding: 8px 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .ftab {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 0.14em;
+    padding: 5px 10px; background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-dim); cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase;
+  }
+  .ftab:hover { color: var(--gold-dim); }
+  .ftab.active { color: var(--gold); border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.06); }
+
+  .fissure-list { display: flex; flex-direction: column; gap: 5px; padding: 10px 12px 12px; }
+
+  .fissure-row {
+    background: rgba(14,12,24,0.7);
+    border: 1px solid rgba(201,168,76,0.08);
+    padding: 9px 11px;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color 0.2s;
+  }
+  .fissure-row:hover { border-color: rgba(201,168,76,0.2); }
+
+  .fissure-top { display: flex; align-items: center; gap: 8px; }
+  .tier-tag {
+    font-size: 0.56rem; font-weight: 400; letter-spacing: 0.1em;
+    padding: 1px 7px; border: 1px solid; white-space: nowrap; flex-shrink: 0;
+  }
+  .tier-Lith    { color: #b87333; border-color: rgba(184,115,51,0.5);  background: rgba(184,115,51,0.08); }
+  .tier-Meso    { color: #c0c0c0; border-color: rgba(192,192,192,0.4); background: rgba(192,192,192,0.07); }
+  .tier-Neo     { color: #c9a84c; border-color: rgba(201,168,76,0.45); background: rgba(201,168,76,0.08); }
+  .tier-Axi     { color: #e8cc7a; border-color: rgba(232,204,122,0.5); background: rgba(232,204,122,0.07); }
+  .tier-Requiem { color: #cc88ff; border-color: rgba(204,136,255,0.4); background: rgba(204,136,255,0.07); }
+  .tier-Omnia   { color: #ff88cc; border-color: rgba(255,136,204,0.4); background: rgba(255,136,204,0.07); }
+
+  .fissure-mission { font-size: 0.7rem; color: var(--text-bright); letter-spacing: 0.04em; flex: 1; }
+  .fissure-type { font-size: 0.58rem; color: var(--text-dim); letter-spacing: 0.08em; }
+  .fissure-timer { font-size: 0.6rem; color: var(--gold-dim); letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+
+  /* ── INVASIONS ── */
+  .inv-list { display: flex; flex-direction: column; gap: 5px; }
+
+  .inv-row {
+    background: rgba(14,12,24,0.7);
+    border: 1px solid rgba(201,168,76,0.08);
+    padding: 9px 11px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color 0.2s;
+  }
+  .inv-row:hover { border-color: rgba(201,168,76,0.2); }
+
+  .inv-factions { display: flex; align-items: center; }
+  .inv-fname {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem; font-weight: 400;
+    letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .inv-spacer { flex: 1; }
+  .inv-fc-grineer  { color: #e8502a; }
+  .inv-fc-corpus   { color: #4ecdc4; }
+  .inv-fc-infested { color: #6abf40; }
+
+  .inv-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .inv-bar { flex: 1; height: 3px; display: flex; overflow: hidden; }
+  .inv-fill-att { height: 100%; flex-shrink: 0; }
+  .inv-fill-def { height: 100%; flex: 1; opacity: 0.35; }
+  .inv-fill-grineer  { background: #e8502a; }
+  .inv-fill-corpus   { background: #4ecdc4; }
+  .inv-fill-infested { background: #6abf40; }
+  .inv-pct { font-size: 0.56rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .inv-rewards { display: flex; align-items: center; }
+  .inv-reward-tag {
+    font-size: 0.5rem; letter-spacing: 0.08em;
+    color: var(--gold-light);
+    background: rgba(201,168,76,0.07);
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 1px 7px; white-space: nowrap;
+  }
+  .inv-reward-none { font-size: 0.5rem; color: var(--text-dim); opacity: 0.3; }
+
+  .inv-location {
+    font-size: 0.58rem; letter-spacing: 0.08em;
+    color: var(--text-dim);
+    padding-top: 3px;
+    border-top: 1px solid rgba(201,168,76,0.08);
+  }
+
+  /* ── ENDGAME (sortie + archon) ── */
+  .endgame-grid { display: flex; flex-direction: column; gap: 14px; }
+
+  .endgame-card {
+    background: rgba(14,12,24,0.7);
+    border: 1px solid rgba(201,168,76,0.1);
+    padding: 13px 14px;
+  }
+  .endgame-title {
+    font-size: 0.6rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-dim);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+  }
+  .endgame-boss {
+    font-size: 0.76rem; color: var(--gold-light);
+    letter-spacing: 0.06em; margin-bottom: 6px;
+  }
+  .endgame-faction {
+    font-size: 0.58rem; color: var(--text-dim);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .mission-list { display: flex; flex-direction: column; gap: 4px; }
+  .mission-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(201,168,76,0.05);
+  }
+  .mission-row:last-child { border-bottom: none; }
+  .mission-num {
+    font-size: 0.52rem; color: var(--gold-dim);
+    letter-spacing: 0.1em; flex-shrink: 0; width: 16px;
+  }
+  .mission-info { flex: 1; }
+  .mission-type { font-size: 0.68rem; color: var(--text-bright); letter-spacing: 0.04em; }
+  .mission-node { font-size: 0.58rem; color: var(--text-dim); letter-spacing: 0.06em; margin-top: 1px; }
+  .mission-modifier {
+    font-size: 0.52rem; color: #cc88ff;
+    border: 1px solid rgba(204,136,255,0.3);
+    background: rgba(204,136,255,0.06);
+    padding: 1px 6px; white-space: nowrap;
+  }
+
+  /* ── ALERTS & EVENTS ── */
+  .alerts-list { display: flex; flex-direction: column; gap: 5px; }
+  .alert-row {
+    background: rgba(14,12,24,0.7);
+    border: 1px solid rgba(201,168,76,0.08);
+    padding: 9px 11px;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color 0.2s;
+  }
+  .alert-row:hover { border-color: rgba(201,168,76,0.2); }
+  .alert-top { display: flex; align-items: center; gap: 8px; }
+  .alert-type-tag {
+    font-size: 0.48rem; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 1px 6px; border: 1px solid; flex-shrink: 0;
+  }
+  .alert-type-tag.event  { color: #c9a84c; border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.07); }
+  .alert-type-tag.alert  { color: #ff8866; border-color: rgba(255,136,102,0.4); background: rgba(255,136,102,0.07); }
+  .alert-name { font-size: 0.72rem; color: var(--text-bright); letter-spacing: 0.04em; flex: 1; }
+  .alert-reward { font-size: 0.6rem; color: var(--gold); letter-spacing: 0.06em; }
+  .alert-location { font-size: 0.58rem; color: var(--text-dim); letter-spacing: 0.06em; }
+  .alert-timer { font-size: 0.58rem; color: var(--gold-dim); letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+
+  /* ── NEWS ── */
+  .news-list { display: flex; flex-direction: column; gap: 5px; }
+  .news-row {
+    background: rgba(14,12,24,0.7);
+    border: 1px solid rgba(201,168,76,0.08);
+    padding: 9px 11px;
+    display: flex; flex-direction: column; gap: 4px;
+    text-decoration: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  .news-row:hover { border-color: rgba(201,168,76,0.3); }
+  .news-date { font-size: 0.52rem; color: var(--gold-dim); letter-spacing: 0.1em; }
+  .news-title { font-size: 0.7rem; color: var(--text-bright); letter-spacing: 0.04em; line-height: 1.4; }
+
+  /* ── EMPTY / LOADING ── */
+  .row-empty {
+    font-size: 0.62rem; color: var(--text-dim);
+    text-align: center; padding: 18px 0;
+    letter-spacing: 0.12em; opacity: 0.5;
+  }
+  .skeleton {
+    background: linear-gradient(90deg, rgba(201,168,76,0.04) 25%, rgba(201,168,76,0.08) 50%, rgba(201,168,76,0.04) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 2px;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+  .skel-row { height: 52px; margin-bottom: 5px; }
+  .skel-cycle { height: 70px; }
+
+  /* Full-page loader */
+  #pageLoader {
+    position: fixed; inset: 0;
+    background: var(--bg-deepest);
+    z-index: 2000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px;
+    transition: opacity 0.5s ease;
+  }
+  #pageLoader.hidden { opacity: 0; pointer-events: none; }
+  .loader-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.4rem; color: var(--gold-light);
+    text-shadow: 0 0 40px rgba(201,168,76,0.5);
+    letter-spacing: 0.12em;
+  }
+  .loader-spinner {
+    width: 40px; height: 40px;
+    border: 2px solid rgba(201,168,76,0.1);
+    border-top-color: var(--gold);
+    border-right-color: var(--gold-dim);
+    animation: spin 1.2s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text {
+    font-size: 0.64rem; letter-spacing: 0.28em;
+    color: var(--text-dim);
+    animation: pulse-text 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-text { 0%,100%{opacity:0.3;} 50%{opacity:1;} }
+
+  #pageContent { opacity: 0; transition: opacity 0.4s ease; }
+  #pageContent.visible { opacity: 1; }
+
+  /* ══════════════════════════════
+     NEWS + ALERTS ROW (top)
+  ══════════════════════════════ */
+  .top-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* ══════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════ */
+  @media (max-width: 1100px) {
+    .main-grid { grid-template-columns: 1fr 1fr; }
+    .cycles-strip { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .top-row { grid-template-columns: 1fr; }
+    .cycles-strip { grid-template-columns: repeat(2, 1fr); }
+    .page-wrap { padding: 66px 14px 48px; }
+  }
+  @media (max-width: 480px) {
+    .cycles-strip { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Full-page loader -->
+<div id="pageLoader">
+  <div class="loader-title">Void Codex</div>
+  <div class="loader-spinner"></div>
+  <div class="loader-text" id="loaderText">ACCESSING TENNO NETWORK…</div>
+</div>
+
+<!-- Menu overlay -->
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+
+<!-- Slide-in menu -->
+<nav class="side-menu" id="sideMenu">
+  <button class="menu-close" onclick="closeMenu()">✕</button>
+  <div class="menu-header">
+    <div class="menu-site-name">Void Codex</div>
+    <div class="menu-tagline">Orokin Archive</div>
+  </div>
+  <nav class="menu-nav">
+    <a href="index.html"><span class="nav-icon">⌂</span> Home</a>
+    <a href="worldstate.html" class="active"><span class="nav-icon">⬡</span> World State</a>
+    <a href="tracker.html"><span class="nav-icon">◈</span> Prime Tracker</a>
+  </nav>
+  <div class="menu-footer">Void Codex · Community Tool</div>
+</nav>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="topbar-title">Void Codex</a>
+    <span class="topbar-sep">·</span>
+    <span class="topbar-page">World State</span>
+  </div>
+  <button class="hamburger" onclick="openMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<!-- Back to top -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">▲</button>
+
+<!-- Page content -->
+<div id="pageContent">
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-title">World State</div>
+      <div class="page-subtitle" id="lastUpdated">Initialising…</div>
+    </div>
+    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">⟳ Refresh</button>
+  </div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <div class="status-text" id="statusText">Connecting…</div>
+    <div class="status-time" id="statusTime"></div>
+  </div>
+
+  <!-- Cooldown message -->
+  <div class="cooldown-msg" id="cooldownMsg"></div>
+
+  <!-- Cycles -->
+  <div class="section-label">◈ Cycles</div>
+  <div class="cycles-strip" id="cyclesGrid">
+    <div class="cycle-card skeleton skel-cycle"></div>
+    <div class="cycle-card skeleton skel-cycle"></div>
+    <div class="cycle-card skeleton skel-cycle"></div>
+    <div class="cycle-card skeleton skel-cycle"></div>
+    <div class="cycle-card skeleton skel-cycle"></div>
+  </div>
+
+  <!-- News + Alerts top row -->
+  <div class="top-row">
+    <div class="section" id="newsSection">
+      <div class="section-header">
+        <div class="section-title">✦ News</div>
+        <div class="section-count" id="newsCount"></div>
+      </div>
+      <div class="section-body">
+        <div class="news-list" id="newsList">
+          <div class="skeleton skel-row"></div>
+          <div class="skeleton skel-row"></div>
+          <div class="skeleton skel-row"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="alertsSection">
+      <div class="section-header">
+        <div class="section-title">⚠ Alerts &amp; Events</div>
+        <div class="section-count" id="alertsCount"></div>
+      </div>
+      <div class="section-body">
+        <div class="alerts-list" id="alertsList">
+          <div class="skeleton skel-row"></div>
+          <div class="skeleton skel-row"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="main-grid">
+
+    <!-- Fissures -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">⬡ Void Fissures</div>
+        <div class="section-count" id="fissureCount"></div>
+      </div>
+      <div class="fissure-tabs" id="fissureTabs">
+        <button class="ftab active" onclick="setFissureTab('normal',this)">Normal</button>
+        <button class="ftab" onclick="setFissureTab('steel',this)">Steel Path</button>
+        <button class="ftab" onclick="setFissureTab('void',this)">Void Storm</button>
+      </div>
+      <div class="fissure-list" id="fissureList">
+        <div class="skeleton skel-row"></div>
+        <div class="skeleton skel-row"></div>
+        <div class="skeleton skel-row"></div>
+      </div>
+    </div>
+
+    <!-- Invasions -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">⚔ Invasions</div>
+        <div class="section-count" id="invasionCount"></div>
+      </div>
+      <div class="section-body">
+        <div class="inv-list" id="invasionList">
+          <div class="skeleton skel-row"></div>
+          <div class="skeleton skel-row"></div>
+          <div class="skeleton skel-row"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Endgame -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">◈ Endgame</div>
+      </div>
+      <div class="section-body">
+        <div class="endgame-grid" id="endgameGrid">
+          <div class="skeleton skel-row"></div>
+          <div class="skeleton skel-row"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-grid -->
+</div><!-- /page-wrap -->
+
+<footer style="position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 24px;text-align:center;font-size:0.52rem;color:var(--text-dim);letter-spacing:0.1em;opacity:0.45;">
+  Void Codex · Community Tool · Not affiliated with Digital Extremes · Data via <a href="https://warframestat.us" target="_blank" rel="noopener" style="color:var(--gold-dim);text-decoration:none;">warframestat.us</a>
+</footer>
+</div><!-- /pageContent -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const WS_BASE        = 'https://api.warframestat.us/pc';
+const CACHE_PREFIX   = 'voidcodex_ws_';
+const CACHE_TTL      = 60 * 1000;          // 1 min per endpoint
+const NEWS_TTL       = 5 * 60 * 1000;      // 5 min for news
+const POLL_INTERVAL  = 60 * 1000;          // re-poll every 60s
+const COOLDOWN_MS    = 30 * 1000;          // manual refresh cooldown
+const MAX_RETRIES    = 3;
+const RETRY_BASE     = 1000;               // exponential backoff base (ms)
+
+const CRITICAL = ['cetusCycle', 'fissures', 'sortie', 'archonHunt'];
+
+const ENDPOINTS = [
+  { key: 'cetusCycle',   path: '/cetusCycle',   ttl: CACHE_TTL },
+  { key: 'vallisCycle',  path: '/vallisCycle',  ttl: CACHE_TTL },
+  { key: 'cambionCycle', path: '/cambionCycle', ttl: CACHE_TTL },
+  { key: 'zarimanCycle', path: '/zarimanCycle', ttl: CACHE_TTL },
+  { key: 'duviriCycle',  path: '/duviriCycle',  ttl: CACHE_TTL },
+  { key: 'fissures',     path: '/fissures',     ttl: CACHE_TTL },
+  { key: 'invasions',    path: '/invasions',    ttl: CACHE_TTL },
+  { key: 'alerts',       path: '/alerts',       ttl: CACHE_TTL },
+  { key: 'events',       path: '/events',       ttl: CACHE_TTL },
+  { key: 'sortie',       path: '/sortie',       ttl: CACHE_TTL },
+  { key: 'archonHunt',   path: '/archonHunt',   ttl: CACHE_TTL },
+  { key: 'news',         path: '/news',         ttl: NEWS_TTL  },
+];
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let ws             = {};         // live data store
+let timers         = {};         // setInterval handles for countdown clocks
+let pollTimer      = null;
+let lastManualTime = 0;
+let refetchPending = false;
+let fissureTab     = 'normal';
+let retryCount     = 0;
+
+// ══════════════════════════════════════════════════════
+//  CACHE (localStorage)
+// ══════════════════════════════════════════════════════
+function cacheGet(key) {
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key);
+    if (!raw) return null;
+    const { data, ts } = JSON.parse(raw);
+    return { data, ts };
+  } catch(e) { return null; }
+}
+
+function cacheSet(key, data) {
+  try {
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ data, ts: Date.now() }));
+  } catch(e) {}
+}
+
+function cacheExpired(key, ttl) {
+  const entry = cacheGet(key);
+  if (!entry) return true;
+  return Date.now() - entry.ts > ttl;
+}
+
+// ══════════════════════════════════════════════════════
+//  FETCH WITH CACHE + BACKOFF
+// ══════════════════════════════════════════════════════
+async function fetchEndpoint(ep, force = false) {
+  const { key, path, ttl } = ep;
+
+  // Check cache first
+  if (!force && !cacheExpired(key, ttl)) {
+    const cached = cacheGet(key);
+    if (cached) return cached.data;
+  }
+
+  // Fetch with exponential backoff on 429
+  let attempt = 0;
+  while (attempt <= MAX_RETRIES) {
+    try {
+      const res = await fetch(WS_BASE + path);
+
+      if (res.status === 429) {
+        const delay = RETRY_BASE * Math.pow(2, attempt);
+        setStatus(`Rate limited — waiting ${Math.round(delay/1000)}s…`, 'loading');
+        await sleep(delay);
+        attempt++;
+        continue;
+      }
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      cacheSet(key, data);
+      return data;
+
+    } catch(e) {
+      if (attempt >= MAX_RETRIES) throw e;
+      await sleep(RETRY_BASE * Math.pow(2, attempt));
+      attempt++;
+    }
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ══════════════════════════════════════════════════════
+//  STAGGERED FETCH ALL
+// ══════════════════════════════════════════════════════
+async function fetchAll(force = false) {
+  const results = {};
+  const STAGGER = 80; // ms between each request
+
+  for (let i = 0; i < ENDPOINTS.length; i++) {
+    const ep = ENDPOINTS[i];
+    if (i > 0) await sleep(STAGGER);
+    try {
+      results[ep.key] = await fetchEndpoint(ep, force);
+    } catch(e) {
+      console.warn(`Failed to fetch ${ep.key}:`, e);
+      // Fall back to stale cache if available
+      const stale = cacheGet(ep.key);
+      if (stale) results[ep.key] = stale.data;
+    }
+  }
+
+  return results;
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT + POLL
+// ══════════════════════════════════════════════════════
+async function init() {
+  setStatus('Connecting…', 'loading');
+
+  // Try to paint from cache immediately (instant load)
+  const cached = {};
+  let hasCached = false;
+  for (const ep of ENDPOINTS) {
+    const entry = cacheGet(ep.key);
+    if (entry) { cached[ep.key] = entry.data; hasCached = true; }
+  }
+  if (hasCached) {
+    ws = cached;
+    renderAll();
+    revealPage();
+    setStatus('Loading fresh data…', 'loading');
+  }
+
+  // Then fetch fresh
+  try {
+    const fresh = await fetchAll();
+    const criticalOk = CRITICAL.every(k => fresh[k]);
+
+    if (!criticalOk && retryCount < MAX_RETRIES) {
+      retryCount++;
+      setLoaderText(`⟳ Retrying… (${retryCount}/${MAX_RETRIES})`);
+      await sleep(800 * retryCount);
+      return init();
+    }
+
+    retryCount = 0;
+    ws = fresh;
+    renderAll();
+    revealPage();
+    setStatus('Live', 'ok');
+    updateStatusTime();
+
+  } catch(e) {
+    if (!hasCached) {
+      setStatus('Failed to load data', 'error');
+      revealPage();
+    } else {
+      setStatus('Using cached data — network error', 'error');
+    }
+  }
+
+  // Start polling
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(autoPoll, POLL_INTERVAL);
+}
+
+async function autoPoll() {
+  if (refetchPending) return;
+  refetchPending = true;
+  try {
+    const fresh = await fetchAll();
+    ws = { ...ws, ...fresh };
+    renderAll();
+    setStatus('Live', 'ok');
+    updateStatusTime();
+  } catch(e) {
+    setStatus('Poll failed — using last data', 'error');
+  } finally {
+    refetchPending = false;
+  }
+}
+
+async function manualRefresh() {
+  const now = Date.now();
+  const elapsed = now - lastManualTime;
+
+  if (elapsed < COOLDOWN_MS) {
+    const remaining = Math.ceil((COOLDOWN_MS - elapsed) / 1000);
+    showCooldown(`⟳ Cooldown active — please wait ${remaining}s before refreshing again`);
+    return;
+  }
+
+  hideCooldown();
+  lastManualTime = now;
+  document.getElementById('refreshBtn').disabled = true;
+
+  try {
+    const fresh = await fetchAll(true); // force = bypass cache
+    ws = fresh;
+    renderAll();
+    setStatus('Live', 'ok');
+    updateStatusTime();
+  } catch(e) {
+    setStatus('Refresh failed', 'error');
+  } finally {
+    document.getElementById('refreshBtn').disabled = false;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════════════
+function revealPage() {
+  document.getElementById('pageLoader').classList.add('hidden');
+  document.getElementById('pageContent').classList.add('visible');
+}
+function setLoaderText(t) {
+  const el = document.getElementById('loaderText');
+  if (el) el.textContent = t;
+}
+function setStatus(msg, state) {
+  const dot  = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  dot.className  = 'status-dot' + (state === 'error' ? ' error' : state === 'loading' ? ' loading' : '');
+  text.textContent = msg;
+}
+function updateStatusTime() {
+  const el = document.getElementById('statusTime');
+  if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString();
+  const lu = document.getElementById('lastUpdated');
+  if (lu) lu.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+}
+function showCooldown(msg) {
+  const el = document.getElementById('cooldownMsg');
+  el.textContent = msg; el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 4000);
+}
+function hideCooldown() {
+  document.getElementById('cooldownMsg').classList.remove('visible');
+}
+
+// ══════════════════════════════════════════════════════
+//  TIME HELPERS
+// ══════════════════════════════════════════════════════
+function fmtCountdown(expiry) {
+  if (!expiry) return '';
+  const diff = Math.max(0, new Date(expiry) - Date.now());
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m ${s}s`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function startCountdowns() {
+  Object.values(timers).forEach(clearInterval);
+  timers = {};
+
+  // Cycle timers
+  ['cetusCycle','vallisCycle','cambionCycle','zarimanCycle','duviriCycle'].forEach(key => {
+    const el = document.getElementById('timer-' + key);
+    if (!el) return;
+    const expiry = ws[key]?.expiry || ws[key]?.activation;
+    if (!expiry) return;
+    timers[key] = setInterval(() => {
+      el.textContent = fmtCountdown(expiry);
+      if (new Date(expiry) <= Date.now()) {
+        clearInterval(timers[key]);
+        autoPoll();
+      }
+    }, 1000);
+  });
+
+  // Fissure timers
+  (ws.fissures || []).forEach((f, i) => {
+    const el = document.getElementById(`ftimer-${i}`);
+    if (!el) return;
+    timers[`fissure-${i}`] = setInterval(() => {
+      el.textContent = fmtCountdown(f.expiry);
+    }, 1000);
+  });
+
+  // Alert timers
+  (ws.alerts || []).forEach((a, i) => {
+    const el = document.getElementById(`atimer-${i}`);
+    if (!el) return;
+    timers[`alert-${i}`] = setInterval(() => {
+      el.textContent = fmtCountdown(a.expiry);
+    }, 1000);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════
+function renderAll() {
+  renderCycles();
+  renderFissures();
+  renderInvasions();
+  renderAlertsEvents();
+  renderEndgame();
+  renderNews();
+  startCountdowns();
+}
+
+// ── Cycles ──
+function renderCycles() {
+  const defs = [
+    { key: 'cetusCycle',   label: 'Cetus',    stateMap: { day:'Day', night:'Night' } },
+    { key: 'vallisCycle',  label: 'Orb Vallis', stateMap: { warm:'Warm', cold:'Cold' } },
+    { key: 'cambionCycle', label: 'Cambion Drift', stateMap: { fass:'Fass', vome:'Vome' } },
+    { key: 'zarimanCycle', label: 'Zariman',   stateMap: { grineer:'Grineer', corpus:'Corpus' } },
+    { key: 'duviriCycle',  label: 'Duviri',    stateMap: {} },
+  ];
+
+  document.getElementById('cyclesGrid').innerHTML = defs.map(def => {
+    const d = ws[def.key];
+    if (!d) return `<div class="cycle-card"><div class="cycle-location">${def.label}</div><div class="cycle-state">—</div></div>`;
+
+    const rawState = d.state || d.isDay === false ? (d.isDay === false ? 'night' : d.state) : d.state || '—';
+    const stateKey = (d.state || '').toLowerCase();
+    const stateLabel = def.stateMap[stateKey] || (d.isDay ? 'Day' : d.isDay === false ? 'Night' : d.state || '—');
+    const expiry = d.expiry || d.activation;
+
+    return `<div class="cycle-card ${stateKey}">
+      <div class="cycle-location">${def.label}</div>
+      <div class="cycle-state ${stateKey}">${stateLabel}</div>
+      <div class="cycle-timer" id="timer-${def.key}">${expiry ? fmtCountdown(expiry) : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Fissures ──
+const TIER_ORDER = ['Lith','Meso','Neo','Axi','Requiem','Omnia'];
+let fissureData = [];
+
+function setFissureTab(tab, btn) {
+  fissureTab = tab;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFissures();
+}
+
+function renderFissures() {
+  const all = ws.fissures || [];
+  fissureData = all.filter(f => {
+    if (!f.active) return false;
+    if (fissureTab === 'steel') return f.isHard;
+    if (fissureTab === 'void')  return f.isStorm;
+    return !f.isHard && !f.isStorm;
+  }).sort((a, b) => TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier));
+
+  const count = document.getElementById('fissureCount');
+  if (count) count.textContent = fissureData.length + ' active';
+
+  const list = document.getElementById('fissureList');
+  if (!list) return;
+
+  if (!fissureData.length) {
+    list.innerHTML = `<div class="row-empty">No active fissures</div>`;
+    return;
+  }
+
+  list.innerHTML = fissureData.map((f, i) => `
+    <div class="fissure-row">
+      <div class="fissure-top">
+        <span class="tier-tag tier-${f.tier}">${f.tier}</span>
+        <span class="fissure-mission">${f.node || '—'}</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span class="fissure-type">${f.missionType || ''}</span>
+        <span class="fissure-timer" id="ftimer-${i}">${fmtCountdown(f.expiry)}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ── Invasions ──
+function fcClass(faction) {
+  if (!faction) return '';
+  const f = faction.toLowerCase();
+  if (f.includes('grineer'))  return 'inv-fc-grineer';
+  if (f.includes('corpus'))   return 'inv-fc-corpus';
+  if (f.includes('infested')) return 'inv-fc-infested';
+  return '';
+}
+function fillClass(faction) {
+  if (!faction) return '';
+  const f = faction.toLowerCase();
+  if (f.includes('grineer'))  return 'inv-fill-grineer';
+  if (f.includes('corpus'))   return 'inv-fill-corpus';
+  if (f.includes('infested')) return 'inv-fill-infested';
+  return '';
+}
+function shortFaction(faction) {
+  if (!faction) return '—';
+  if (faction.toLowerCase().includes('grineer'))  return 'Grineer';
+  if (faction.toLowerCase().includes('corpus'))   return 'Corpus';
+  if (faction.toLowerCase().includes('infested')) return 'Infested';
+  return faction;
+}
+
+function renderInvasions() {
+  const all = (ws.invasions || []).filter(inv => !inv.completed);
+  const list = document.getElementById('invasionList');
+  const count = document.getElementById('invasionCount');
+  if (count) count.textContent = all.length + ' active';
+  if (!list) return;
+
+  if (!all.length) {
+    list.innerHTML = `<div class="row-empty">No active invasions</div>`;
+    return;
+  }
+
+  list.innerHTML = all.map(inv => {
+    const attFac  = inv.attacker?.faction || '';
+    const defFac  = inv.defender?.faction || '';
+    const pct     = Math.max(0, Math.min(100, inv.completion || 0));
+    const attPct  = pct.toFixed(1);
+    const defPct  = (100 - pct).toFixed(1);
+
+    const attReward = inv.attacker?.reward?.asString || inv.attacker?.reward?.countedItems?.[0]?.type || '';
+    const defReward = inv.defender?.reward?.asString || inv.defender?.reward?.countedItems?.[0]?.type || '';
+
+    const node   = inv.node   || '—';
+    const planet = node.split('(')[1]?.replace(')', '') || '';
+    const nodeName = node.split('(')[0].trim();
+
+    return `<div class="inv-row">
+      <div class="inv-factions">
+        <span class="inv-fname ${fcClass(attFac)}">${shortFaction(attFac)}</span>
+        <span class="inv-spacer"></span>
+        <span class="inv-fname ${fcClass(defFac)}">${shortFaction(defFac)}</span>
+      </div>
+      <div class="inv-bar-wrap">
+        <span class="inv-pct ${fcClass(attFac)}">${attPct}%</span>
+        <div class="inv-bar">
+          <div class="inv-fill-att ${fillClass(attFac)}" style="width:${pct}%"></div>
+          <div class="inv-fill-def ${fillClass(defFac)}"></div>
+        </div>
+        <span class="inv-pct ${fcClass(defFac)}">${defPct}%</span>
+      </div>
+      <div class="inv-rewards">
+        ${attReward ? `<span class="inv-reward-tag">${attReward}</span>` : `<span class="inv-reward-none">—</span>`}
+        <span class="inv-spacer"></span>
+        ${defReward ? `<span class="inv-reward-tag">${defReward}</span>` : `<span class="inv-reward-none">—</span>`}
+      </div>
+      <div class="inv-location">◈ ${nodeName}${planet ? ' · ' + planet : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Alerts & Events ──
+function renderAlertsEvents() {
+  const alerts = ws.alerts || [];
+  const events = ws.events || [];
+  const combined = [
+    ...events.map(e => ({ ...e, _type: 'event' })),
+    ...alerts.map(a => ({ ...a, _type: 'alert' })),
+  ];
+
+  const count = document.getElementById('alertsCount');
+  if (count) count.textContent = combined.length + ' active';
+
+  const list = document.getElementById('alertsList');
+  if (!list) return;
+
+  if (!combined.length) {
+    list.innerHTML = `<div class="row-empty">No active alerts or events</div>`;
+    return;
+  }
+
+  list.innerHTML = combined.map((item, i) => {
+    const name    = item.description || item.mission?.description || item.tooltip || '—';
+    const reward  = item.rewards?.[0]?.asString || item.mission?.reward?.asString || '';
+    const node    = item.mission?.node || item.node || '';
+    const expiry  = item.expiry;
+    const typeTag = item._type;
+    return `<div class="alert-row">
+      <div class="alert-top">
+        <span class="alert-type-tag ${typeTag}">${typeTag.toUpperCase()}</span>
+        <span class="alert-name">${name}</span>
+      </div>
+      ${reward   ? `<div class="alert-reward">✦ ${reward}</div>` : ''}
+      ${node     ? `<div class="alert-location">◈ ${node}</div>` : ''}
+      ${expiry   ? `<div class="alert-timer" id="atimer-${i}">${fmtCountdown(expiry)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Endgame ──
+function renderEndgame() {
+  const el = document.getElementById('endgameGrid');
+  if (!el) return;
+
+  const parts = [];
+
+  // Sortie
+  const sortie = ws.sortie;
+  if (sortie) {
+    const missions = (sortie.variants || []).map((v, i) => `
+      <div class="mission-row">
+        <span class="mission-num">${i + 1}</span>
+        <div class="mission-info">
+          <div class="mission-type">${v.missionType || '—'}</div>
+          <div class="mission-node">${v.node || ''}</div>
+        </div>
+        ${v.modifier ? `<span class="mission-modifier">${v.modifier}</span>` : ''}
+      </div>`).join('');
+
+    parts.push(`<div class="endgame-card">
+      <div class="endgame-title">◈ Sortie</div>
+      <div class="endgame-boss">${sortie.boss || '—'}</div>
+      <div class="endgame-faction">${sortie.faction || ''}</div>
+      <div class="mission-list">${missions || '<div class="row-empty">No data</div>'}</div>
+    </div>`);
+  }
+
+  // Archon Hunt
+  const archon = ws.archonHunt;
+  if (archon) {
+    const missions = (archon.missions || []).map((m, i) => `
+      <div class="mission-row">
+        <span class="mission-num">${i + 1}</span>
+        <div class="mission-info">
+          <div class="mission-type">${m.type || '—'}</div>
+          <div class="mission-node">${m.node || ''}</div>
+        </div>
+      </div>`).join('');
+
+    parts.push(`<div class="endgame-card">
+      <div class="endgame-title">◈ Archon Hunt</div>
+      <div class="endgame-boss">${archon.boss || '—'}</div>
+      <div class="endgame-faction">${archon.faction || ''}</div>
+      <div class="mission-list">${missions || '<div class="row-empty">No data</div>'}</div>
+    </div>`);
+  }
+
+  el.innerHTML = parts.length ? parts.join('') : `<div class="row-empty">No endgame data</div>`;
+}
+
+// ── News ──
+function renderNews() {
+  const items = (ws.news || []).slice(0, 8);
+  const list  = document.getElementById('newsList');
+  const count = document.getElementById('newsCount');
+  if (count) count.textContent = items.length + ' items';
+  if (!list) return;
+
+  if (!items.length) {
+    list.innerHTML = `<div class="row-empty">No news</div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(item => `
+    <a class="news-row" href="${item.link || '#'}" target="_blank" rel="noopener">
+      <div class="news-date">${fmtDate(item.date)}</div>
+      <div class="news-title">${item.message || item.translation?.[0]?.content || '—'}</div>
+    </a>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  MENU
+// ══════════════════════════════════════════════════════
+function openMenu() {
+  document.getElementById('sideMenu').classList.add('open');
+  document.getElementById('menuOverlay').classList.add('open');
+}
+function closeMenu() {
+  document.getElementById('sideMenu').classList.remove('open');
+  document.getElementById('menuOverlay').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('backToTop');
+  if (btn) btn.classList.toggle('visible', window.scrollY > 300);
+});
+
+// ══════════════════════════════════════════════════════
+//  START
+// ══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
